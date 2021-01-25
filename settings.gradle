@@ -1,0 +1,6 @@
+rootProject.name = 'tracing-research'
+include ':agent'
+include 'common'
+include 'kafka-trace'
+include 'sql-trace'
+
