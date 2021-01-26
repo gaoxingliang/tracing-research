@@ -14,7 +14,7 @@ public class ExampleTraceSQL {
         String x = "execute|executeUpdate|executeQuery";
         System.out.println(Pattern.matches(x, "executeQuery"));
 
-        String pid = "29118";
+        long pid = 29118;
         //            /Users/edward/projects/forked/tracing-research/sql-trace/build/libs/sql-trace-0.0.1-all.jar
         String jar = "/Users/edward/projects/forked/tracing-research/sql-trace/build/libs/sql-trace-0.0.1-all.jar";
         Map<String, String> options = new HashMap<>();

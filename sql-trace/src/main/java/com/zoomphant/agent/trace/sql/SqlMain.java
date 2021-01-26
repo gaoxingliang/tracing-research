@@ -25,7 +25,7 @@ public class SqlMain extends BasicMain {
                 .with(AgentBuilder.Listener.StreamWriting.toSystemOut())
                 .type(ElementMatchers.isSubTypeOf(Statement.class))
                 .transform((builder, typeDescription, classLoader, module) -> builder
-                        .method(ElementMatchers.named("executeQuery"))
+                        .method(ElementMatchers.nameStartsWith("execute"))
                         .intercept(Advice.to(ExecuteAdvice.class))
                 ).installOn(inst);
 
