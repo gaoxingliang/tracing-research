@@ -33,26 +33,33 @@ public class Recorder {
         tracer = tracing.tracer();
     }
 
+    /**
+     *
+     * @param op the operation
+     * @param target  the remote target
+     * @param tags  additional tags if needed
+     * @return the span
+     */
     public Span recordStart(String op, String target, String... tags) {
         Span s = tracer.newTrace();
-        s.name(op);
+        s.name(op).remoteServiceName(tracerType.getName() + "@" + target);
         if (tags != null) {
             for (int i = 0; i < tags.length / 2; ) {
                 s.tag(tags[i], tags[i + 1]);
                 i = i + 2;
             }
         }
-        s.tag("_source", source);
-        s.tag("_target", target);
         s.tag("_state", "");
-        s.tag("_type", tracerType.getName());
         s.start();
         TraceLog.info("Started span " + s );
         return s;
     }
 
-    public void recordFinish(Span span, boolean suc) {
-        span.tag("_state", suc ? "suc" : "fail");
+    public void recordFinish(Span span, Throwable e) {
+        span.tag("_state", e == null ? "suc" : "fail");
+        if (e != null) {
+            span.error(e);
+        }
         span.finish();
         TraceLog.info("Finished span " + span);
     }

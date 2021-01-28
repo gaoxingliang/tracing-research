@@ -30,7 +30,7 @@ public class ExecuteAdvice {
     @Advice.OnMethodExit(suppress = Throwable.class, onThrowable = Throwable.class)
     static void exit(@Advice.Enter Span span, @Advice.Thrown Throwable th){
         if (span != null) {
-            BasicMain.HOLDER.get(BasicMain.SQL).getRecorder().recordFinish(span, th == null);
+            BasicMain.HOLDER.get(BasicMain.SQL).getRecorder().recordFinish(span, th);
         }
     }
 
