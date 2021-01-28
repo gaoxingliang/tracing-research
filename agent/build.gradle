@@ -20,7 +20,6 @@ apply plugin: 'java'
 
 dependencies {
 
-    compile fileTree(dir: './lib', include: ['*.jar'])
     compile project(":common")
     // redshift url
     // https://mvnrepository.com/artifact/net.bytebuddy/byte-buddy-agent
@@ -28,5 +27,15 @@ dependencies {
 
 }
 
+task copyToUpperLibs(type: Copy) {
+    from file("build/libs/")
+    into getRootProject().getProjectDir().getAbsolutePath() + "/agentlibs"
+}
+
+task build(overwrite: true) {
+    dependsOn = ['clean', 'jar', 'copyToUpperLibs']
+    jar.mustRunAfter clean
+    copyToUpperLibs.mustRunAfter jar
+}
 
 
