@@ -13,7 +13,7 @@ public class ProcessUtils {
             long pid = p.pid();
             String cmd = p.info().command().orElse("");
             String containerName = DockerUtils.getContainerName(pid);
-            return ProcInfo.builder().cmd(cmd).id(pid).containerId(containerName).build();
+            return ProcInfo.builder().cmd(cmd).id(pid).containerId(containerName == null ? "" : containerName).build();
         }).collect(Collectors.toList());
     }
 

@@ -2,6 +2,7 @@ package com.zoomphant.agent.trace.sql;
 
 import com.zoomphant.agent.trace.common.BasicMain;
 import com.zoomphant.agent.trace.common.TraceLog;
+import com.zoomphant.agent.trace.common.TracerType;
 import net.bytebuddy.agent.builder.AgentBuilder;
 import net.bytebuddy.asm.Advice;
 import net.bytebuddy.matcher.ElementMatchers;
@@ -20,21 +21,32 @@ public class SqlMain extends BasicMain {
          * The last part is required on most JVMs (with the notable exception of the dynamic code evolution VM, a custom build of HotSpot).
          * It tells Byte Buddy to not add fields or methods, what most VMs do not support.
          */
+//        new AgentBuilder.Default().with(AgentBuilder.RedefinitionStrategy.RETRANSFORMATION)
+//                .disableClassFormatChanges()
+//                .with(AgentBuilder.Listener.StreamWriting.toSystemOut())
+//                .type(ElementMatchers.isSubTypeOf(Statement.class))
+//                .transform((builder, typeDescription, classLoader, module) -> builder
+//                        .method(ElementMatchers.nameStartsWith("execute").and(ElementMatchers.isPublic().or(ElementMatchers.isProtected())))
+//                        .intercept(Advice.to(ExecuteAdvice.class))
+//                )
+//                .installOn(inst);
+
+
         new AgentBuilder.Default().with(AgentBuilder.RedefinitionStrategy.RETRANSFORMATION)
                 .disableClassFormatChanges()
                 .with(AgentBuilder.Listener.StreamWriting.toSystemOut())
                 .type(ElementMatchers.isSubTypeOf(Statement.class))
                 .transform((builder, typeDescription, classLoader, module) -> builder
-                        .method(ElementMatchers.nameStartsWith("execute"))
+                        .method(ElementMatchers.nameStartsWith("execute").and(ElementMatchers.isPublic().or(ElementMatchers.isProtected())))
                         .intercept(Advice.to(ExecuteAdvice.class))
-                ).installOn(inst);
-
+                )
+                .installOn(inst);
 
         /**
          * Starts a thread
          */
         SqlMain main = new SqlMain();
-        main.start("sql", agentArgs, inst);
+        main.start(TracerType.SQL, agentArgs, inst);
         BasicMain.HOLDER.put("sql", main);
         TraceLog.info("Sql main installed");
     }

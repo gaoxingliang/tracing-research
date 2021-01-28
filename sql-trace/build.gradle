@@ -46,3 +46,14 @@ shadowJar {
         inheritFrom project.tasks.jar.manifest
     }
 }
+
+task copyToUpperLibs(type: Copy) {
+    from file("build/libs/")
+    into getRootProject().getProjectDir().getAbsolutePath() + "/releaselibs"
+}
+
+task build(overwrite: true) {
+    dependsOn = ['clean', 'shadowJar', 'copyToUpperLibs']
+    shadowJar.mustRunAfter clean
+    copyToUpperLibs.mustRunAfter shadowJar
+}

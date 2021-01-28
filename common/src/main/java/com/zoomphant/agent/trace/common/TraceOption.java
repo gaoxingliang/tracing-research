@@ -15,6 +15,9 @@ public class TraceOption {
     // central agent address
     public static final String CENTRALPORT = "_centralport";
     public static final String CENTRALHOST = "_centralhost";
+    public static final String CONTAINER = "_container";
+    public static final String NODENAME = "_node";
+    public static final String PID = "_pid";
 
 
     public static Map<String, String> parseOptions(String agentArgs) {

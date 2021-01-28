@@ -10,7 +10,6 @@ public class TimeAdvice {
      */
     @Advice.OnMethodEnter
     static long enter(@Advice.Origin String method) throws Exception {
-
         long start = System.currentTimeMillis();
         return start;
     }

@@ -2,6 +2,7 @@ import com.zoomphant.agent.trace.AttachTask;
 import com.zoomphant.agent.trace.HostServer;
 import com.zoomphant.agent.trace.common.TraceOption;
 
+import java.io.File;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.regex.Pattern;
@@ -10,13 +11,13 @@ public class ExampleTraceSQL {
 
 
     public static void main(String[] args) throws Exception {
-        HostServer.start(HostServer.DEFAULT_PORT);
+        // HostServer.start(HostServer.DEFAULT_PORT);
         String x = "execute|executeUpdate|executeQuery";
         System.out.println(Pattern.matches(x, "executeQuery"));
 
-        long pid = 29118;
+        long pid = 74789;
         //            /Users/edward/projects/forked/tracing-research/sql-trace/build/libs/sql-trace-0.0.1-all.jar
-        String jar = "/Users/edward/projects/forked/tracing-research/sql-trace/build/libs/sql-trace-0.0.1-all.jar";
+        String jar = new File("./releaselibs/sql-trace-0.0.1-all.jar").getCanonicalPath();
         Map<String, String> options = new HashMap<>();
         options.put(TraceOption.HOST, "127.0.0.1");
         options.put(TraceOption.PORT, HostServer.DEFAULT_PORT + "");

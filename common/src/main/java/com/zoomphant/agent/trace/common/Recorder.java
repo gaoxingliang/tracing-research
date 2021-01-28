@@ -10,11 +10,13 @@ import zipkin2.reporter.okhttp3.OkHttpSender;
 public class Recorder {
 
     @Getter
-    private String name;
+    private String source;
     private final Tracer tracer;
+    private final TracerType tracerType;
 
-    public Recorder(String name, String reportedToUrl) {
-        this.name = name;
+    public Recorder(String source, TracerType tracerType, String reportedToUrl) {
+        this.source = source;
+        this.tracerType = tracerType;
 
         // Configure a reporter, which controls how often spans are sent
 //   (this dependency is io.zipkin.reporter2:zipkin-sender-okhttp3)
@@ -25,13 +27,13 @@ public class Recorder {
 
 // Create a tracing component with the service name you want to see in Zipkin.
         Tracing tracing = Tracing.newBuilder()
-                .localServiceName(name)
+                .localServiceName(source)
                 .addSpanHandler(zipkinSpanHandler)
                 .build();
         tracer = tracing.tracer();
     }
 
-    public Span recordStart(String op, String source, String target, String... tags) {
+    public Span recordStart(String op, String target, String... tags) {
         Span s = tracer.newTrace();
         s.name(op);
         if (tags != null) {
@@ -43,6 +45,7 @@ public class Recorder {
         s.tag("_source", source);
         s.tag("_target", target);
         s.tag("_state", "");
+        s.tag("_type", tracerType.getName());
         s.start();
         TraceLog.info("Started span " + s );
         return s;

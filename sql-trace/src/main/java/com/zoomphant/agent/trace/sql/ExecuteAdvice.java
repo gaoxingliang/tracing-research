@@ -7,19 +7,20 @@ import net.bytebuddy.asm.Advice;
 
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.Arrays;
 
 // https://medium.com/@lnishada/introduction-to-byte-buddy-advice-annotations-48ac7dae6a94
 public class ExecuteAdvice {
 
     @Advice.OnMethodEnter(suppress = Throwable.class)
     static Span enter(@Advice.This Statement statement,
-                      @Advice.Argument(0) String sql){
+                      @Advice.AllArguments Object[] args){
         // System.out.println("Got sql " + sql);
-        TraceLog.info("Got sql " + sql);
+        TraceLog.info("Got sql " + Arrays.asList(args));
         // target remote url:
         try {
             String url = statement.getConnection().getMetaData().getURL();
-            return BasicMain.HOLDER.get(BasicMain.SQL).getRecorder().recordStart("execute", "", url, "sql.query", sql);
+            return BasicMain.HOLDER.get(BasicMain.SQL).getRecorder().recordStart("execute", "", url, "sql.query", args == null ? "" : String.valueOf(args[0]));
         }
         catch (SQLException throwables) {
             return null;

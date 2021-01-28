@@ -1,7 +1,7 @@
 package com.zoomphant.agent.trace.checker;
 
 import com.zoomphant.agent.trace.common.TraceLog;
-import com.zoomphant.agent.trace.common.Tracer;
+import com.zoomphant.agent.trace.common.TracerType;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -25,7 +25,7 @@ public abstract class Checker {
         return options;
     }
 
-    public abstract Tracer supportedTracers();
+    public abstract TracerType supportedTracers();
 
     protected abstract Map<String, String> _options();
 
