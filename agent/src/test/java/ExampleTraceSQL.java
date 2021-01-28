@@ -15,7 +15,7 @@ public class ExampleTraceSQL {
         String x = "execute|executeUpdate|executeQuery";
         System.out.println(Pattern.matches(x, "executeQuery"));
 
-        long pid = 74789;
+        long pid = 82424;
         //            /Users/edward/projects/forked/tracing-research/sql-trace/build/libs/sql-trace-0.0.1-all.jar
         String jar = new File("./releaselibs/sql-trace-0.0.1-all.jar").getCanonicalPath();
         Map<String, String> options = new HashMap<>();
@@ -23,6 +23,8 @@ public class ExampleTraceSQL {
         options.put(TraceOption.PORT, HostServer.DEFAULT_PORT + "");
         options.put(TraceOption.CENTRALHOST, "127.0.0.1");
         options.put(TraceOption.CENTRALPORT, "9411");
+        options.put(TraceOption.CONTAINER, "MOCKED");
+
         Thread th = new Thread(new AttachTask(pid, jar, options));
         th.start();
 
