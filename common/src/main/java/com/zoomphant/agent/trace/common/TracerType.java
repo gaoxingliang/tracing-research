@@ -3,7 +3,8 @@ package com.zoomphant.agent.trace.common;
 import lombok.Getter;
 
 public enum TracerType {
-    SQL("sql", "sql-trace-0.0.1-all.jar");
+    SQL("sql", "sql-trace-0.0.1-all.jar"),
+    KAFKA_JMX("kafkajmx", "kafka-trace-0.0.1-all.jar");
 
     @Getter
     private String name;

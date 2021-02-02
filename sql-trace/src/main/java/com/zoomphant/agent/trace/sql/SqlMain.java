@@ -47,7 +47,7 @@ public class SqlMain extends BasicMain {
          */
         SqlMain main = new SqlMain();
         main.start(TracerType.SQL, agentArgs, inst);
-        BasicMain.HOLDER.put("sql", main);
+        BasicMain.HOLDER.put(TracerType.SQL, main);
         TraceLog.info("Sql main installed");
     }
 

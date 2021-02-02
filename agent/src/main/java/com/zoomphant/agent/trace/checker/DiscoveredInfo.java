@@ -15,4 +15,11 @@ public class DiscoveredInfo {
         discoveredInfo.type = "java";
         return discoveredInfo;
     }
+
+    public static DiscoveredInfo newKafka() {
+        DiscoveredInfo discoveredInfo = new DiscoveredInfo();
+        discoveredInfo.type = "kafka";
+        return discoveredInfo;
+    }
+
 }

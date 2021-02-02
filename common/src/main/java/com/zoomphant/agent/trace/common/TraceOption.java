@@ -20,6 +20,22 @@ public class TraceOption {
     public static final String PID = "_pid";
 
 
+    public static final String REPORTING_HEADER_PREFIX = "__r_";
+
+    public static Map<String, String> buildReportingHeaders(Map<String, String> map) {
+        Map<String, String> h = new HashMap<>(map.size());
+        map.forEach((k,v) -> h.put(REPORTING_HEADER_PREFIX + k, v));
+        return h;
+    }
+
+    public static Map<String, String> extractReportingHeaders(Map<String, String> map) {
+        Map<String, String> h = new HashMap<>(map.size());
+        map.entrySet().stream().filter(e -> e.getKey().startsWith(REPORTING_HEADER_PREFIX))
+                .forEach(e -> h.put(e.getKey().substring(REPORTING_HEADER_PREFIX.length()), e.getValue()));
+        return h;
+    }
+
+
     public static Map<String, String> parseOptions(String agentArgs) {
         if (agentArgs == null) {
             return new HashMap<>();

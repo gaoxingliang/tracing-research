@@ -3,6 +3,7 @@ package com.zoomphant.agent.trace.sql;
 import brave.Span;
 import com.zoomphant.agent.trace.common.BasicMain;
 import com.zoomphant.agent.trace.common.TraceLog;
+import com.zoomphant.agent.trace.common.TracerType;
 import net.bytebuddy.asm.Advice;
 
 import java.sql.SQLException;
@@ -19,7 +20,7 @@ public class ExecuteAdvice {
         // target remote url:
         try {
             String url = statement.getConnection().getMetaData().getURL();
-            return BasicMain.HOLDER.get(BasicMain.SQL).getRecorder().recordStart("execute", url, "sql.query", args == null ? "" : String.valueOf(args[0]));
+            return BasicMain.HOLDER.get(TracerType.SQL).getRecorder().recordStart("execute", url, "sql.query", args == null ? "" : String.valueOf(args[0]));
         }
         catch (SQLException throwables) {
             return null;
@@ -30,7 +31,7 @@ public class ExecuteAdvice {
     @Advice.OnMethodExit(suppress = Throwable.class, onThrowable = Throwable.class)
     static void exit(@Advice.Enter Span span, @Advice.Thrown Throwable th){
         if (span != null) {
-            BasicMain.HOLDER.get(BasicMain.SQL).getRecorder().recordFinish(span, th);
+            BasicMain.HOLDER.get(TracerType.SQL).getRecorder().recordFinish(span, th);
         }
     }
 
