@@ -3,6 +3,7 @@ package com.zoomphant.agent.trace;
 
 import com.zoomphant.agent.trace.checker.ProcInfo;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -13,7 +14,7 @@ public class ProcessUtils {
             long pid = p.pid();
             String cmd = p.info().command().orElse("");
             String containerName = DockerUtils.getContainerName(pid);
-            return ProcInfo.builder().cmd(cmd).id(pid).containerId(containerName == null ? "" : containerName).build();
+            return ProcInfo.builder().args(Arrays.asList(p.info().arguments().orElse(new String[0]))).cmd(cmd).id(pid).containerId(containerName == null ? "" : containerName).build();
         }).collect(Collectors.toList());
     }
 

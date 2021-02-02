@@ -25,3 +25,15 @@ dependencies {
     compile group: 'com.linecorp.armeria', name: 'armeria', version: '1.3.0'
     compile fileTree(dir: '../depencylibs', include: ['*.jar'])
 }
+
+
+task copyToUpperLibs(type: Copy) {
+    from file("build/libs/")
+    into getRootProject().getProjectDir().getAbsolutePath() + "/agentlibs"
+}
+
+task build(overwrite: true) {
+    dependsOn = ['clean', 'jar', 'copyToUpperLibs']
+    jar.mustRunAfter clean
+    copyToUpperLibs.mustRunAfter jar
+}

@@ -28,10 +28,10 @@ public class TraceOption {
         return h;
     }
 
-    public static Map<String, String> extractReportingHeaders(Map<String, String> map) {
+    public static Map<String, String> filterReportingHeaders(Map<String, String> map) {
         Map<String, String> h = new HashMap<>(map.size());
         map.entrySet().stream().filter(e -> e.getKey().startsWith(REPORTING_HEADER_PREFIX))
-                .forEach(e -> h.put(e.getKey().substring(REPORTING_HEADER_PREFIX.length()), e.getValue()));
+                .forEach(e -> h.put(e.getKey(), e.getValue()));
         return h;
     }
 
