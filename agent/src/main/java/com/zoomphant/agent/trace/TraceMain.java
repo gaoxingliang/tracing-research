@@ -49,7 +49,7 @@ public class TraceMain {
                      */
                     Set<Long> alreadyAttached = new HashSet<>();
                     try {
-                        List<ProcInfo> procInfoList = ProcessUtils.allProcess();
+                        List<ProcInfo> procInfoList = ProcessUtils.allProcess2();
                         // for each process collect the informations...
                         for (ProcInfo p : procInfoList) {
                             if (alreadyAttached.contains(p.getId())) {

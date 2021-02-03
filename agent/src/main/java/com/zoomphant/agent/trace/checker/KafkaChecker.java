@@ -6,7 +6,7 @@ public class KafkaChecker extends JavaChecker{
 
     @Override
     public DiscoveredInfo _check(ProcInfo procInfo) {
-        if (procInfo.getArgs().contains("kafka.Kafka")) {
+        if (procInfo.getCmd().contains("kafka.Kafka")) {
             return DiscoveredInfo.newKafka();
         }
         return null;
