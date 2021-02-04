@@ -2,6 +2,7 @@ package com.zoomphant.agent.trace.common;
 
 import io.prometheus.jmx.shaded.io.prometheus.client.exporter.common.TextFormat;
 import io.prometheus.jmx.shaded.io.prometheus.jmx.JmxCollector;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 
 import java.io.StringWriter;
@@ -69,7 +70,7 @@ public class JMXMain extends BasicMain {
             StringWriter sw = new StringWriter(1024 * 4);
             TextFormat.write004(sw, Collections.enumeration(jmxCollector.collect()));
             HttpUtils.post(prometheusReportedTo, sw.toString(), reportingHeaders);
-            TraceLog.info("Posting data " + sw.toString());
+            TraceLog.info("Posting data " + StringUtils.abbreviate(sw.toString(), 100));
         } catch (Exception e) {
             TraceLog.info("Fail to report " + ExceptionUtils.getRootCauseMessage(e));
         }

@@ -2,25 +2,29 @@ package com.zoomphant.agent.trace;
 
 import com.zoomphant.agent.trace.checker.Checker;
 import com.zoomphant.agent.trace.checker.DiscoveredInfo;
+import com.zoomphant.agent.trace.checker.KafkaChecker;
 import com.zoomphant.agent.trace.checker.ProcInfo;
+import com.zoomphant.agent.trace.checker.SQLChecker;
 import com.zoomphant.agent.trace.common.AgentThread;
 import com.zoomphant.agent.trace.common.ThreadUtils;
 import com.zoomphant.agent.trace.common.TraceLog;
 import com.zoomphant.agent.trace.common.TraceOption;
+import org.apache.commons.io.FileUtils;
 
 import java.io.File;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.concurrent.ConcurrentSkipListSet;
 
 public class TraceMain {
 
-    private static Set<String> alreadyEnabledChecker = new HashSet<>();
-
+    public static Set<String> alreadyEnabledChecker = new ConcurrentSkipListSet<>();
+    public static Set<Long> alreadyAttachedProcces = new ConcurrentSkipListSet<>();
     /**
      * It will use below envs:
      * _ZP_ENV_NODE  : k8s108
@@ -47,12 +51,12 @@ public class TraceMain {
                      *
                      * Let's check every 10.... minutes
                      */
-                    Set<Long> alreadyAttached = new HashSet<>();
+
                     try {
                         List<ProcInfo> procInfoList = ProcessUtils.allProcess2();
                         // for each process collect the informations...
                         for (ProcInfo p : procInfoList) {
-                            if (alreadyAttached.contains(p.getId())) {
+                            if (alreadyAttachedProcces.contains(p.getId())) {
                                 continue;
                             }
                             List<DiscoveredInfo> discoveredInfos = new ArrayList<>();
@@ -60,7 +64,30 @@ public class TraceMain {
                             if (discoveredInfo != null) {
                                 discoveredInfos.add(discoveredInfo);
                                 //            /Users/edward/projects/forked/tracing-research/sql-trace/build/libs/sql-trace-0.0.1-all.jar
-                                String jar = new File(libsFolder, checker.supportedTracers().getJar()).getCanonicalPath();
+                                // The jar is on the physical host node
+                                File jarFile = new File(libsFolder, checker.supportedTracers().getJar());
+                                String jar = jarFile.getCanonicalPath();
+                                // it's it's a docker process
+                                if (p.getContainerId() != null) {
+                                    // let's copy the jar file
+                                    // We have to copy the jar when attaching a process which is in docker.
+                                    String procDir = "/proc/" + p.getId() + "/root/tmp";
+                                    if (!new File(procDir).exists()) {
+                                        TraceLog.info("The proc dir not exits " + procDir);
+                                    } else {
+                                        File f = Paths.get(procDir, "zpdir").toFile();
+                                        if (!f.exists()) {
+                                            f.mkdirs();
+                                        }
+                                        File dockerRootFile = new File(f, checker.supportedTracers().getJar());
+                                        FileUtils.copyFile(jarFile, dockerRootFile);
+                                        TraceLog.debug("Copy file " +  dockerRootFile.getCanonicalPath());
+                                        // This will be the dir which the process in docker can see this file....
+                                        jar = "/tmp/zpdir/" + checker.supportedTracers().getJar();
+                                    }
+                                }
+
+
                                 Map<String, String> options = new HashMap<>();
                                 options.put(TraceOption.HOST, "127.0.0.1");
                                 options.put(TraceOption.PORT, HostServer.DEFAULT_PORT + "");
@@ -73,7 +100,7 @@ public class TraceMain {
                                 options.putAll(TraceOption.buildReportingHeaders(reportingProps));
                                 Thread th = new Thread(new AttachTask(p.getId(), jar, options));
                                 th.start();
-                                alreadyAttached.add(p.getId());
+                                alreadyAttachedProcces.add(p.getId());
                             }
                         }
                     }
@@ -89,4 +116,23 @@ public class TraceMain {
             }).start();
         }
     }
+
+    public static void main(String[] args) throws InterruptedException {
+        /**
+         * A helper test method
+         */
+        SQLChecker sql = new SQLChecker();
+        KafkaChecker kafka = new KafkaChecker();
+        Checker c = null;
+        if (args[1].equals("sql")) {
+            c = sql;
+        } else if (args[1].equals("kafka")) {
+            c = kafka;
+        } else {
+            throw new IllegalArgumentException("Unknown checker - " + args[0]);
+        }
+        TraceMain.start(args[0], c, new HashMap<>());
+        Thread.sleep(100000);
+    }
+
 }

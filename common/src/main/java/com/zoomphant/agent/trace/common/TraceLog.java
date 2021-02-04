@@ -9,6 +9,11 @@ import java.util.logging.Logger;
 
 @UtilityClass
 public class TraceLog {
+
+    public static void debug(String msg) {
+        System.out.println("TRACE :" + msg);
+    }
+
     public void info(String msg) {
         System.out.println("TRACE :" + msg);
          // logger().log(Level.INFO, msg);

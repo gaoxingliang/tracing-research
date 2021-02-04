@@ -12,11 +12,18 @@ public class DummyLoader {
      * @param args
      */
     public static void main(String[] args) throws Exception {
+        boolean justSleeping = System.getProperty("sleep") != null;
+        if (justSleeping) {
+            System.out.println("just sleepping");
+            Thread.sleep(100000);
+            return;
+        }
         System.out.println("Try attaching use :" + Arrays.toString(args));
         VirtualMachine virtualMachine = null;
         virtualMachine = VirtualMachine.attach(args[0]);
+        System.out.println("Attached success");
         virtualMachine.loadAgent(args[1], args.length == 2 ? "" : args[2]);
-        System.out.println("Agent loaded");
+        System.out.println("Agent loaded success");
         virtualMachine.detach();
     }
 }

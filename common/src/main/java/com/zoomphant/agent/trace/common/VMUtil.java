@@ -11,15 +11,15 @@ import java.io.File;
 public class VMUtil {
     // Attach a jvm with jar file and options
     public void attach(String pid, String jarFile, String option) throws Exception {
-        if (!new File(jarFile).exists()) {
-            throw new IllegalArgumentException("File not found - " + jarFile);
-        }
+
         VirtualMachine virtualMachine = null;
         try {
+            TraceLog.info("Try loading agent " + jarFile + " for pid = " + pid + " with option=" + option);
+
             ByteBuddyAgent.attach(new File(jarFile), pid, option);
             //virtualMachine = VirtualMachine.attach(pid);
             //virtualMachine.loadAgent(jarFile, option);
-            TraceLog.info("Loaded agent " + jarFile + " for pid = " + pid);
+            TraceLog.info("Loaded agent " + jarFile + " for pid = " + pid + " with option=" + option);
         }
         catch (Exception e) {
             if (ExceptionUtils.getRootCauseMessage(e).contains("AgentLoadException: 0")) {
