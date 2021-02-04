@@ -23,24 +23,24 @@ public class ProcessUtils {
                             : containerName).build();
                 }).collect(Collectors.toList());
     }
-
-    /**
-     * This method is using the jdk's imple. but it has a bug
-     * when the command line is too long, it will not SHOW THE FULL command line.
-     *
-     * @return
-     */
-    @Deprecated
-    public static List<ProcInfo> allProcess() {
-        return ProcessHandle.allProcesses().map(p -> {
-            long pid = p.pid();
-            String cmd = p.info().command().orElse("");
-            String containerName = DockerUtils.getContainerName(pid);
-            return ProcInfo.builder().args(Arrays.asList(p.info().arguments().orElse(new String[0]))).cmd(cmd).id(pid).containerId(containerName == null ? "" : containerName).build();
-        }).collect(Collectors.toList());
-    }
-
-    public static void main(String[] args) {
-        ProcessUtils.allProcess().forEach(r -> System.out.println(r));
-    }
+//
+//    /**
+//     * This method is using the jdk's imple. but it has a bug
+//     * when the command line is too long, it will not SHOW THE FULL command line.
+//     *
+//     * @return
+//     */
+//    @Deprecated
+//    public static List<ProcInfo> allProcess() {
+//        return ProcessHandle.allProcesses().map(p -> {
+//            long pid = p.pid();
+//            String cmd = p.info().command().orElse("");
+//            String containerName = DockerUtils.getContainerName(pid);
+//            return ProcInfo.builder().args(Arrays.asList(p.info().arguments().orElse(new String[0]))).cmd(cmd).id(pid).containerId(containerName == null ? "" : containerName).build();
+//        }).collect(Collectors.toList());
+//    }
+//
+//    public static void main(String[] args) {
+//        ProcessUtils.allProcess().forEach(r -> System.out.println(r));
+//    }
 }

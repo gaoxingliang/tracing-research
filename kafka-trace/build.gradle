@@ -45,6 +45,7 @@ shadowJar {
     manifest {
         inheritFrom project.tasks.jar.manifest
     }
+    exclude "tools.jar"
 }
 
 task copyToUpperLibs(type: Copy) {
