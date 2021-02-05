@@ -57,10 +57,11 @@ public class JMXMain extends BasicMain {
         String fileContent = null;
         try {
             fileContent = FileUtils.getFile(filePath);
+            CollectorRegistry registry = new CollectorRegistry(true);
             final JmxCollector jmxCollector = new JmxCollector(fileContent);
-            jmxCollector.register();
-            DefaultExports.initialize();
-            Executors.newSingleThreadScheduledExecutor().scheduleAtFixedRate(() -> collect(jmxCollector), 10, 60, TimeUnit.SECONDS);
+            jmxCollector.register(registry);
+            DefaultExports.register(registry);
+            Executors.newSingleThreadScheduledExecutor().scheduleAtFixedRate(() -> collect(registry), 10, 60, TimeUnit.SECONDS);
             TraceLog.info("Loaded agent " + filePath);
         }
         catch (Exception e) {
@@ -68,10 +69,10 @@ public class JMXMain extends BasicMain {
         }
     }
 
-    private void collect(JmxCollector jmxCollector) {
+    private void collect(CollectorRegistry registry) {
         try {
             StringWriter sw = new StringWriter(1024 * 4);
-            TextFormat.write004(sw, CollectorRegistry.defaultRegistry.metricFamilySamples());
+            TextFormat.write004(sw, registry.metricFamilySamples());
             HttpUtils.post(prometheusReportedTo, sw.toString(), reportingHeaders);
             TraceLog.info("Posting data " + StringUtils.abbreviate(sw.toString(), 100));
         } catch (Exception e) {
