@@ -1,9 +1,11 @@
 package com.zoomphant.agent.trace.checker;
 
 import lombok.Data;
+import lombok.ToString;
 
 import java.util.Map;
 
+@ToString
 @Data
 public class DiscoveredInfo {
     String type;

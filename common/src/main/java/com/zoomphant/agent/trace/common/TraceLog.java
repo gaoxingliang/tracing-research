@@ -3,6 +3,7 @@ package com.zoomphant.agent.trace.common;
 import lombok.experimental.UtilityClass;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 
+import java.util.Date;
 import java.util.logging.Level;
 import java.util.logging.LogRecord;
 import java.util.logging.Logger;
@@ -11,11 +12,11 @@ import java.util.logging.Logger;
 public class TraceLog {
 
     public static void debug(String msg) {
-        System.out.println("TRACE :" + msg);
+        System.out.println(new Date() + " TRACE :" + msg);
     }
 
     public void info(String msg) {
-        System.out.println("TRACE :" + msg);
+        System.out.println(new Date() +" TRACE :" + msg);
          // logger().log(Level.INFO, msg);
     }
 
@@ -25,7 +26,7 @@ public class TraceLog {
     }
 
     public void error(String msg, Throwable e) {
-        System.out.println("TRACE : Found error: " + ExceptionUtils.getStackTrace(e));
+        System.out.println(new Date() +" TRACE : Found error: " + ExceptionUtils.getStackTrace(e));
         e.printStackTrace();
 
         LogRecord lr = new LogRecord(Level.SEVERE, msg);
