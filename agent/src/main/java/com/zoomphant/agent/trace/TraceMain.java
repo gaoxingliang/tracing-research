@@ -71,11 +71,14 @@ public class TraceMain {
                                 if (p.getContainerId() != null) {
                                     // let's copy the jar file
                                     // We have to copy the jar when attaching a process which is in docker.
-                                    String procDir = "/proc/" + p.getId() + "/root/tmp";
-                                    if (!new File(procDir).exists()) {
-                                        TraceLog.info("The proc dir not exits " + procDir);
-                                    } else {
-                                        File f = Paths.get(procDir, "zpdir").toFile();
+                                    File rootDir = new File("/proc/" + p.getId() + "/root");
+                                    if (rootDir.exists()) {
+                                        File tmpDir = new File(rootDir, "tmp");
+                                        if (!(tmpDir.exists() && tmpDir.isDirectory())) {
+                                            tmpDir.mkdirs();
+                                            TraceLog.info("mkir tmpdir " + tmpDir);
+                                        }
+                                        File f = Paths.get(tmpDir.getAbsolutePath(), "zpdir").toFile();
                                         if (!f.exists()) {
                                             f.mkdirs();
                                         }
@@ -84,6 +87,8 @@ public class TraceMain {
                                         TraceLog.debug("Copy file " +  dockerRootFile.getCanonicalPath());
                                         // This will be the dir which the process in docker can see this file....
                                         jar = "/tmp/zpdir/" + checker.supportedTracers().getJar();
+                                    } else {
+                                        TraceLog.info("Error. The container didn't have a proc root dir " + rootDir);
                                     }
                                 }
 
