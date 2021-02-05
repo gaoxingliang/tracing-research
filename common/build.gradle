@@ -45,6 +45,8 @@ dependencies {
 
     //compile fileTree(dir: '../tools', include: ['*.jar'])
 
+
+    compile group: 'io.prometheus.jmx', name: 'jmx_prometheus_javaagent', version: '0.15.0'
     compile 'com.github.oshi:oshi-core:5.0.0'
 }
 
