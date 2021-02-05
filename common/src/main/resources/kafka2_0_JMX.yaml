@@ -101,3 +101,4 @@ rules:
     type: GAUGE
     labels:
       quantile: "0.$4"
+  - pattern: ""
