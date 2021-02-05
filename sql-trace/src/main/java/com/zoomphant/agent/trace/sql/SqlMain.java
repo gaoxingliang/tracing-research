@@ -30,8 +30,13 @@ public class SqlMain extends BasicMain {
 //                        .intercept(Advice.to(ExecuteAdvice.class))
 //                )
 //                .installOn(inst);
-
-
+/**
+ * Starts a thread
+ */
+        SqlMain main = new SqlMain();
+        if (!main.start(TracerType.SQL, agentArgs, inst)) {
+            return;
+        }
         new AgentBuilder.Default().with(AgentBuilder.RedefinitionStrategy.RETRANSFORMATION)
                 .disableClassFormatChanges()
                 .with(AgentBuilder.Listener.StreamWriting.toSystemOut())
@@ -42,13 +47,9 @@ public class SqlMain extends BasicMain {
                 )
                 .installOn(inst);
 
-        /**
-         * Starts a thread
-         */
-        SqlMain main = new SqlMain();
-        main.start(TracerType.SQL, agentArgs, inst);
         BasicMain.HOLDER.put(TracerType.SQL, main);
         TraceLog.info("Sql main installed");
+
     }
 
     public static void premain(String agentArgs, Instrumentation inst) {

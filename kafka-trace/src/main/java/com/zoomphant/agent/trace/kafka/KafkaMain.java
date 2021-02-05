@@ -41,7 +41,9 @@ public class KafkaMain extends JMXMain {
          * Starts a thread
          */
         KafkaMain main = new KafkaMain();
-        main.start(TracerType.KAFKA_JMX, agentArgs, inst);
+        if (!main.start(TracerType.KAFKA_JMX, agentArgs, inst)) {
+            return;
+        }
         BasicMain.HOLDER.put(TracerType.KAFKA_JMX, main);
         TraceLog.info("Kafka main installed");
     }

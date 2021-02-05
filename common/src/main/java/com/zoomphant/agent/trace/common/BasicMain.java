@@ -18,11 +18,26 @@ public abstract class BasicMain {
     protected int cport;
     protected String source;
 
+    @Getter
+    protected String agentArgs;
+
     protected void _start(TracerType tracer, String agentArgs, Instrumentation inst) {
         recorder = new Recorder(source, tracer, String.format("http://%s:%d/api/v2", chost, cport));
     }
 
-    public final void start(TracerType tracer, String agentArgs, Instrumentation inst) {
+    public final boolean start(TracerType tracer, String agentArgs, Instrumentation inst) {
+
+        /**
+         * let's check whether we have enabled this if so, let's do not do it anymore.
+         */
+        BasicMain existed = HOLDER.get(tracer);
+        if (existed != null) {
+            TraceLog.info("The tracer already exists. do not start this time anymore. " + tracer + " " + existed.agentArgs);
+            return false;
+        }
+
+        this.agentArgs = agentArgs;
+
         options = TraceOption.parseOptions(agentArgs);
         chost = TraceOption.getOption(options, TraceOption.CENTRALHOST);
         cport = TraceOption.getOptionInt(options, TraceOption.CENTRALPORT);
@@ -35,6 +50,7 @@ public abstract class BasicMain {
             source = containerName;
         }
         _start(tracer, agentArgs, inst);
+        return true;
     }
 
     public static final ConcurrentHashMap<TracerType, BasicMain> HOLDER = new ConcurrentHashMap<>();
