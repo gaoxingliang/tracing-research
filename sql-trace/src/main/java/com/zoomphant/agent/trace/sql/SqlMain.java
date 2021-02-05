@@ -39,16 +39,16 @@ public class SqlMain extends BasicMain {
         }
         new AgentBuilder.Default().with(AgentBuilder.RedefinitionStrategy.RETRANSFORMATION)
                 .disableClassFormatChanges()
-                .with(AgentBuilder.Listener.StreamWriting.toSystemOut())
+                .with( //new AgentBuilder.Listener.WithErrorsOnly(
+                        new AgentBuilder.Listener.WithTransformationsOnly(
+                                AgentBuilder.Listener.StreamWriting.toSystemOut()))
                 .type(ElementMatchers.isSubTypeOf(Statement.class))
                 .transform((builder, typeDescription, classLoader, module) -> builder
-                        .method(ElementMatchers.nameStartsWith("execute").and(ElementMatchers.isPublic().or(ElementMatchers.isProtected())))
-                        .intercept(Advice.to(ExecuteAdvice.class))
-                )
-                .installOn(inst);
+                        .visit(Advice.to(ExecuteAdvice.class).on((ElementMatchers.namedOneOf("executeQuery", "execute", "executeUpdate")
+                                .and(ElementMatchers.isPublic()))))).installOn(inst);
 
         BasicMain.HOLDER.put(TracerType.SQL, main);
-        TraceLog.info("Sql main installed");
+        TraceLog.info("Sql main installed using args " + agentArgs);
 
     }
 
