@@ -1,13 +1,14 @@
 package com.zoomphant.agent.trace.common;
 
+import io.prometheus.jmx.shaded.io.prometheus.client.CollectorRegistry;
 import io.prometheus.jmx.shaded.io.prometheus.client.exporter.common.TextFormat;
+import io.prometheus.jmx.shaded.io.prometheus.client.hotspot.DefaultExports;
 import io.prometheus.jmx.shaded.io.prometheus.jmx.JmxCollector;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 
 import java.io.StringWriter;
 import java.lang.instrument.Instrumentation;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.Executors;
@@ -57,6 +58,8 @@ public class JMXMain extends BasicMain {
         try {
             fileContent = FileUtils.getFile(filePath);
             final JmxCollector jmxCollector = new JmxCollector(fileContent);
+            jmxCollector.register();
+            DefaultExports.initialize();
             Executors.newSingleThreadScheduledExecutor().scheduleAtFixedRate(() -> collect(jmxCollector), 10, 60, TimeUnit.SECONDS);
             TraceLog.info("Loaded agent " + filePath);
         }
@@ -68,7 +71,7 @@ public class JMXMain extends BasicMain {
     private void collect(JmxCollector jmxCollector) {
         try {
             StringWriter sw = new StringWriter(1024 * 4);
-            TextFormat.write004(sw, Collections.enumeration(jmxCollector.collect()));
+            TextFormat.write004(sw, CollectorRegistry.defaultRegistry.metricFamilySamples());
             HttpUtils.post(prometheusReportedTo, sw.toString(), reportingHeaders);
             TraceLog.info("Posting data " + StringUtils.abbreviate(sw.toString(), 100));
         } catch (Exception e) {
