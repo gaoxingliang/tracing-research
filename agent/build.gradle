@@ -42,6 +42,7 @@ shadowJar {
 
 
 dependencies {
+    compile group: 'com.alibaba', name: 'fastjson', version: '1.2.68'
 
     compile project(":common")
     // redshift url

@@ -2,10 +2,7 @@ package com.zoomphant.agent.trace.common;
 
 import com.sun.tools.attach.VirtualMachine;
 import lombok.experimental.UtilityClass;
-import net.bytebuddy.agent.ByteBuddyAgent;
 import org.apache.commons.lang3.exception.ExceptionUtils;
-
-import java.io.File;
 
 @UtilityClass
 public class VMUtil {
@@ -16,9 +13,9 @@ public class VMUtil {
         try {
             TraceLog.info("Try loading agent " + jarFile + " for pid = " + pid + " with option=" + option);
 
-            ByteBuddyAgent.attach(new File(jarFile), pid, option);
-            //virtualMachine = VirtualMachine.attach(pid);
-            //virtualMachine.loadAgent(jarFile, option);
+            //ByteBuddyAgent.attach(new File(jarFile), pid, option);
+            virtualMachine = VirtualMachine.attach(pid);
+            virtualMachine.loadAgent(jarFile, option);
             TraceLog.info("Loaded agent " + jarFile + " for pid = " + pid + " with option=" + option);
         }
         catch (Exception e) {

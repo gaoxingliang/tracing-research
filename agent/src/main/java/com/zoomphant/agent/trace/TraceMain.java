@@ -105,6 +105,7 @@ public class TraceMain {
                                     options.put(TraceOption.CENTRALHOST,
                                             Optional.ofNullable(System.getenv("CENTRAL_AGENT_SERVICE_SERVICE_HOST")).orElse("127.0.0.1"));
                                     options.put(TraceOption.CENTRALPORT, "9411");
+                                    options.put(TraceOption.JARFILE, jar);
                                     options.putAll(TraceOption.buildReportingHeaders(reportingProps));
                                     Thread th = new Thread(new AttachTask(p.getId(), jar, options));
                                     th.start();

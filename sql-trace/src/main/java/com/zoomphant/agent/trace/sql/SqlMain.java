@@ -6,8 +6,10 @@ import com.zoomphant.agent.trace.common.TracerType;
 import net.bytebuddy.agent.builder.AgentBuilder;
 import net.bytebuddy.matcher.ElementMatchers;
 
+import java.io.IOException;
 import java.lang.instrument.Instrumentation;
 import java.sql.Statement;
+import java.util.jar.JarFile;
 
 public class SqlMain extends BasicMain {
 
@@ -36,6 +38,7 @@ public class SqlMain extends BasicMain {
         if (!main.start(TracerType.SQL, agentArgs, inst)) {
             return;
         }
+
         new AgentBuilder.Default()
                 .with(AgentBuilder.RedefinitionStrategy.RETRANSFORMATION)
                 .disableClassFormatChanges()
@@ -48,6 +51,13 @@ public class SqlMain extends BasicMain {
                         .advice(ElementMatchers.namedOneOf("executeQuery", "execute", "executeUpdate").and(ElementMatchers.isPublic()),
                                 ExecuteAdvice.class.getName())).installOn(inst);
 
+        TraceLog.info("Current class loaded:" + SqlMain.class.getClassLoader());
+        try {
+            inst.appendToBootstrapClassLoaderSearch(new JarFile(main.getJarFile()));
+        }
+        catch (IOException e) {
+            TraceLog.error("Fail to load jar " + main.getJarFile(), e);
+        }
         BasicMain.HOLDER.put(TracerType.SQL, main);
         TraceLog.info("Sql main installed using args " + agentArgs);
 

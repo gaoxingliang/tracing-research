@@ -24,6 +24,9 @@ public abstract class BasicMain {
     protected String source;
 
     @Getter
+    protected String jarFile;
+
+    @Getter
     protected String agentArgs;
 
     protected void _start(TracerType tracer, String agentArgs, Instrumentation inst) {
@@ -42,8 +45,8 @@ public abstract class BasicMain {
         }
 
         this.agentArgs = agentArgs;
-
         options = TraceOption.parseOptions(agentArgs);
+        this.jarFile = TraceOption.getOption(options, TraceOption.JARFILE);
         chost = TraceOption.getOption(options, TraceOption.CENTRALHOST);
         cport = TraceOption.getOptionInt(options, TraceOption.CENTRALPORT);
         String containerName = TraceOption.getOption(options, TraceOption.CONTAINER);
