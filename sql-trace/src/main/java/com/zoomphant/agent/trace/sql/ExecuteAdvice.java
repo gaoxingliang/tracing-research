@@ -6,7 +6,6 @@ import com.zoomphant.agent.trace.common.TraceLog;
 import com.zoomphant.agent.trace.common.TracerType;
 import net.bytebuddy.asm.Advice;
 
-import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.Arrays;
 
@@ -20,9 +19,9 @@ public class ExecuteAdvice {
         // target remote url:
         try {
             String url = statement.getConnection().getMetaData().getURL();
-            return BasicMain.HOLDER.get(TracerType.SQL).getRecorder().recordStart("execute", url, "sql.query", args == null ? "" : String.valueOf(args[0]));
+            return BasicMain.HOLDER.get(TracerType.SQL).getRecorder().recordStart("execute", url, "sql.query", args == null || args.length == 0 ? "" : String.valueOf(args[0]));
         }
-        catch (SQLException throwables) {
+        catch (Throwable throwables) {
             return null;
         }
 

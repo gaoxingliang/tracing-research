@@ -35,10 +35,10 @@ public class TraceMain {
      * @param reportingProps this is used to generate the reporting props (eg mp id, mp product name... or others...)
      *
      */
-    public static void start(final String libsFolder, Checker checker, final Map<String, String> reportingProps) {
+    public static boolean start(final String libsFolder, Checker checker, final Map<String, String> reportingProps) {
         synchronized (alreadyEnabledChecker) {
             if (alreadyEnabledChecker.contains(checker.supportedTracers().getName())) {
-                return;
+                return false;
             }
             alreadyEnabledChecker.add(checker.supportedTracers().getName());
 
@@ -123,6 +123,7 @@ public class TraceMain {
                     }
                 }
             }).start();
+            return true;
         }
     }
 
