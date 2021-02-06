@@ -1,11 +1,16 @@
 package com.zoomphant.agent.trace.common;
 
+import com.alibaba.fastjson.JSONObject;
 import lombok.Getter;
 import org.apache.commons.lang3.StringUtils;
 
+import java.io.IOException;
 import java.lang.instrument.Instrumentation;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 
 public abstract class BasicMain {
 
@@ -49,9 +54,31 @@ public abstract class BasicMain {
             // just a container name.
             source = containerName;
         }
+
         _start(tracer, agentArgs, inst);
+        Executors.newSingleThreadScheduledExecutor().scheduleAtFixedRate(() -> reportingContainerDiscoveryInfo(), 10, 30, TimeUnit.SECONDS);
         return true;
     }
+
+    private void reportingContainerDiscoveryInfo() {
+        ContainerDiscovery d = getContainerDiscovery();
+        if (d != null) {
+            try {
+                d.source = source;
+                HttpUtils.post(String.format("http://%s:%d/api/discover", chost, cport), JSONObject.toJSONString(d), new HashMap<>(0));
+            }
+            catch (IOException e) {
+                TraceLog.warn("Fail to post remote " + e.getMessage());
+            }
+        }
+    }
+
+    protected ContainerDiscovery getContainerDiscovery() {
+        return null;
+    }
+
+
+
 
     public static final ConcurrentHashMap<TracerType, BasicMain> HOLDER = new ConcurrentHashMap<>();
 }

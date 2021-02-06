@@ -16,7 +16,6 @@ import java.util.concurrent.TimeUnit;
 
 public class JMXMain extends BasicMain {
     protected String prometheusReportedTo;
-    protected String serviceName;
 
     /**
      * the headers all starts with the prefix in {@link TraceOption#REPORTING_HEADER_PREFIX}
@@ -44,7 +43,6 @@ public class JMXMain extends BasicMain {
     protected void _start(TracerType tracer, String agentArgs, Instrumentation inst) {
         // parse the options...
         prometheusReportedTo = String.format("http://%s:%d/prometheus", chost, cport);
-        serviceName = tracer.getName() + "@" + source;
         reportingHeaders = TraceOption.filterReportingHeaders(options);
         // build the collector
         String filePath = getConfigYaml();
@@ -65,7 +63,7 @@ public class JMXMain extends BasicMain {
             TraceLog.info("Loaded agent " + filePath);
         }
         catch (Exception e) {
-            TraceLog.error("Fail to load", e);
+            TraceLog.warn("Fail to load " + e.getMessage());
         }
     }
 

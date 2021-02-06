@@ -17,7 +17,9 @@ public class TraceLog {
 
     public void info(String msg) {
         System.out.println(new Date() +" TRACE :" + msg);
-         // logger().log(Level.INFO, msg);
+    }
+    public void warn(String msg) {
+        System.out.println(new Date() +" TRACE :" + msg);
     }
 
 
