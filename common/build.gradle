@@ -11,11 +11,10 @@ repositories {
 
 dependencies {
 
-
+    compile project(":common-minimal")
     // https://mvnrepository.com/artifact/net.bytebuddy/byte-buddy
     compile group: 'net.bytebuddy', name: 'byte-buddy', version: '1.10.19'
 
-    compile group: 'com.alibaba', name: 'fastjson', version: '1.2.68'
 
     /* apache common */
     compile 'com.google.guava:guava:23.0'

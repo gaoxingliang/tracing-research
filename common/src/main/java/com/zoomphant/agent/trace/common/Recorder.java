@@ -3,6 +3,7 @@ package com.zoomphant.agent.trace.common;
 import brave.Span;
 import brave.Tracer;
 import brave.Tracing;
+import com.zoomphant.agent.trace.common.minimal.TraceLog;
 import lombok.Getter;
 import zipkin2.reporter.brave.AsyncZipkinSpanHandler;
 import zipkin2.reporter.okhttp3.OkHttpSender;

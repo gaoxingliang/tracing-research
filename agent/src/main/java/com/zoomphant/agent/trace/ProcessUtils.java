@@ -2,7 +2,7 @@ package com.zoomphant.agent.trace;
 
 
 import com.zoomphant.agent.trace.checker.ProcInfo;
-import com.zoomphant.agent.trace.common.TraceLog;
+import com.zoomphant.agent.trace.common.minimal.TraceLog;
 import org.apache.commons.lang3.StringUtils;
 import oshi.SystemInfo;
 import oshi.software.os.OperatingSystem;

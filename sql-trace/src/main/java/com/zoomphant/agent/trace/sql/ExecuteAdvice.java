@@ -2,8 +2,8 @@ package com.zoomphant.agent.trace.sql;
 
 import brave.Span;
 import com.zoomphant.agent.trace.common.BasicMain;
-import com.zoomphant.agent.trace.common.TraceLog;
 import com.zoomphant.agent.trace.common.TracerType;
+import com.zoomphant.agent.trace.common.minimal.TraceLog;
 import net.bytebuddy.asm.Advice;
 
 import java.sql.Statement;

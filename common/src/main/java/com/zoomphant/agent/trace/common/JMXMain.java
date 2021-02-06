@@ -1,5 +1,7 @@
 package com.zoomphant.agent.trace.common;
 
+import com.zoomphant.agent.trace.common.minimal.TraceLog;
+import com.zoomphant.agent.trace.common.minimal.TraceOption;
 import io.prometheus.jmx.shaded.io.prometheus.client.CollectorRegistry;
 import io.prometheus.jmx.shaded.io.prometheus.client.exporter.common.TextFormat;
 import io.prometheus.jmx.shaded.io.prometheus.client.hotspot.DefaultExports;

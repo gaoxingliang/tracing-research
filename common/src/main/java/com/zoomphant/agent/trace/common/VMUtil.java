@@ -1,6 +1,7 @@
 package com.zoomphant.agent.trace.common;
 
 import com.sun.tools.attach.VirtualMachine;
+import com.zoomphant.agent.trace.common.minimal.TraceLog;
 import lombok.experimental.UtilityClass;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 

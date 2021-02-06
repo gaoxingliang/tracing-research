@@ -8,7 +8,7 @@ import com.linecorp.armeria.server.ServerBuilder;
 import com.linecorp.armeria.server.annotation.ConsumesJson;
 import com.linecorp.armeria.server.annotation.Post;
 import com.linecorp.armeria.server.annotation.RequestObject;
-import com.zoomphant.agent.trace.common.TraceLog;
+import com.zoomphant.agent.trace.common.minimal.TraceLog;
 
 import java.util.concurrent.CompletableFuture;
 

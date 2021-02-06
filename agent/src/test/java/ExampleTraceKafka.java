@@ -1,6 +1,6 @@
 import com.zoomphant.agent.trace.AttachTask;
 import com.zoomphant.agent.trace.HostServer;
-import com.zoomphant.agent.trace.common.TraceOption;
+import com.zoomphant.agent.trace.common.minimal.TraceOption;
 
 import java.io.File;
 import java.util.HashMap;

@@ -4,4 +4,6 @@ include 'common'
 include 'kafka-trace'
 include 'sql-trace'
 include 'dummy'
+include 'bootstrap'
+include 'common-minimal'
 

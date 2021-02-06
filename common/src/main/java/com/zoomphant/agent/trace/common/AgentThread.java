@@ -1,5 +1,7 @@
 package com.zoomphant.agent.trace.common;
 
+import com.zoomphant.agent.trace.common.minimal.TraceLog;
+
 public class AgentThread extends Thread{
     private final Runnable r;
     protected volatile boolean stopped = false;

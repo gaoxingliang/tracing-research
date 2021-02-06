@@ -1,0 +1,53 @@
+plugins {
+    id 'java'
+    id "com.github.johnrengelman.shadow" version "5.0.0"
+}
+group 'com.zoomphant.agent.trace'
+version '0.0.1'
+repositories {
+    mavenCentral()
+}
+
+
+
+apply plugin: 'idea'
+apply plugin: 'java'
+apply plugin: 'com.github.johnrengelman.shadow'
+
+
+dependencies {
+    compile project(":common-minimal")
+}
+
+jar {
+    manifest {
+        attributes "Agent-Class": "com.zoomphant.agent.trace.boost.Bootstrap"
+        attributes "Premain-Class": "com.zoomphant.agent.trace.boost.Bootstrap"
+        attributes "Can-Redefine-Classes": "true"
+        attributes "Can-Retransform-Classes": "true"
+    }
+
+
+    from {
+        configurations.compile.collect { it.isDirectory() ? it : zipTree(it) }
+    }
+}
+
+shadowJar {
+    manifest {
+        inheritFrom project.tasks.jar.manifest
+    }
+
+    exclude "tools.jar"
+}
+
+task copyToUpperLibs(type: Copy) {
+    from file("build/libs/")
+    into getRootProject().getProjectDir().getAbsolutePath() + "/releaselibs"
+}
+
+task build(overwrite: true) {
+    dependsOn = ['clean', 'shadowJar', 'copyToUpperLibs']
+    shadowJar.mustRunAfter clean
+    copyToUpperLibs.mustRunAfter shadowJar
+}

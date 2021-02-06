@@ -1,11 +1,8 @@
-package com.zoomphant.agent.trace.common;
-
-import com.google.common.base.Joiner;
+package com.zoomphant.agent.trace.common.minimal;
 
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 public class TraceOption {
     // physical NODE
@@ -19,6 +16,8 @@ public class TraceOption {
     public static final String NODENAME = "_node";
     public static final String PID = "_pid";
     public static final String JARFILE = "_jar";
+    public static final String AGENTCLASS= "_agentClass";
+
 
 
     public static final String REPORTING_HEADER_PREFIX = "__r_";
@@ -60,7 +59,11 @@ public class TraceOption {
     }
 
     public static String renderOptions(Map<String, String> options) {
-        return Joiner.on("##").join(options.entrySet().stream().map(e -> e.getKey() +"=" + e.getValue()).collect(Collectors.toList()));
-
+        StringBuilder sb = new StringBuilder();
+        if (!options.isEmpty()) {
+            options.forEach((k,v) -> sb.append(k).append("=").append(v).append("##"));
+            sb.delete(sb.length() - 2, sb.length());
+        }
+        return sb.toString();
     }
 }

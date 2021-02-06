@@ -14,9 +14,11 @@ public class HttpUtils {
     private static final OkHttpClient client = new OkHttpClient.Builder().callTimeout(10, TimeUnit.SECONDS)
             .connectTimeout(10, TimeUnit.SECONDS).build();
 
-    public static void post(String url, String body, Map<String, String> headers) throws IOException {
-        Request.Builder b = new Request.Builder().url(url).post(RequestBody.create(body.getBytes()));
-        headers.forEach((k,v) -> b.header(k, v));
+    public static void post(String url, byte[] body, Map<String, String> headers) throws IOException {
+        Request.Builder b = new Request.Builder().url(url).post(RequestBody.create(body));
+        if (headers != null) {
+            headers.forEach((k, v) -> b.header(k, v));
+        }
         Call c = client.newCall(b.build());
         Response r = null;
         try {
@@ -26,5 +28,9 @@ public class HttpUtils {
                 r.close();
             }
         }
+    }
+
+    public static void post(String url, String body, Map<String, String> headers) throws IOException {
+        post(url, body.getBytes(), headers);
     }
 }

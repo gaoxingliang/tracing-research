@@ -7,8 +7,8 @@ import com.zoomphant.agent.trace.checker.ProcInfo;
 import com.zoomphant.agent.trace.checker.SQLChecker;
 import com.zoomphant.agent.trace.common.AgentThread;
 import com.zoomphant.agent.trace.common.ThreadUtils;
-import com.zoomphant.agent.trace.common.TraceLog;
-import com.zoomphant.agent.trace.common.TraceOption;
+import com.zoomphant.agent.trace.common.minimal.TraceLog;
+import com.zoomphant.agent.trace.common.minimal.TraceOption;
 import org.apache.commons.io.FileUtils;
 
 import java.io.File;
@@ -22,6 +22,9 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentSkipListSet;
 
 public class TraceMain {
+
+    public static final String bootstrap = "boost-0.0.1-all.jar";
+
 
     public static Set<String> alreadyEnabledChecker = new ConcurrentSkipListSet<>();
     public static Set<Long> alreadyAttachedProcces = new ConcurrentSkipListSet<>();
@@ -89,6 +92,9 @@ public class TraceMain {
                                             TraceLog.debug("Copy file " + dockerRootFile.getCanonicalPath());
                                             // This will be the dir which the process in docker can see this file....
                                             jar = "/tmp/zpdir/" + checker.supportedTracers().getJar();
+                                            /**
+                                             * !todo copy the bootstrap too
+                                             */
                                         }
                                         else {
                                             TraceLog.info("Error. The container didn't have a proc root dir " + rootDir);
@@ -107,7 +113,7 @@ public class TraceMain {
                                     options.put(TraceOption.CENTRALPORT, "9411");
                                     options.put(TraceOption.JARFILE, jar);
                                     options.putAll(TraceOption.buildReportingHeaders(reportingProps));
-                                    Thread th = new Thread(new AttachTask(p.getId(), jar, options));
+                                    Thread th = new Thread(new AttachTask(p.getId(), bootstrap, options));
                                     th.start();
                                     alreadyAttachedProcces.add(p.getId());
                                 }

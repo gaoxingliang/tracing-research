@@ -1,19 +1,17 @@
 package com.zoomphant.agent.trace.sql;
 
 import com.zoomphant.agent.trace.common.BasicMain;
-import com.zoomphant.agent.trace.common.TraceLog;
 import com.zoomphant.agent.trace.common.TracerType;
+import com.zoomphant.agent.trace.common.minimal.TraceLog;
 import net.bytebuddy.agent.builder.AgentBuilder;
 import net.bytebuddy.matcher.ElementMatchers;
 
-import java.io.IOException;
 import java.lang.instrument.Instrumentation;
 import java.sql.Statement;
-import java.util.jar.JarFile;
 
 public class SqlMain extends BasicMain {
 
-    private static void install(String agentArgs, Instrumentation inst) {
+    public static void install(String agentArgs, Instrumentation inst) {
         TraceLog.info("Will install sql with " + agentArgs);
         /**
          *
@@ -47,27 +45,13 @@ public class SqlMain extends BasicMain {
                                 AgentBuilder.Listener.StreamWriting.toSystemOut()))
                 .type(ElementMatchers.isSubTypeOf(Statement.class))
                 .transform(new AgentBuilder.Transformer.ForAdvice()
+                        .include(SqlMain.class.getClassLoader())
                         // use this to avoid the classes loading problem - https://stackoverflow.com/questions/60237664/classpath-problems-while-instrumenting-springboot-application
                         .advice(ElementMatchers.namedOneOf("executeQuery", "execute", "executeUpdate").and(ElementMatchers.isPublic()),
                                 ExecuteAdvice.class.getName())).installOn(inst);
-
-        TraceLog.info("Current class loaded:" + SqlMain.class.getClassLoader());
-        try {
-            inst.appendToBootstrapClassLoaderSearch(new JarFile(main.getJarFile()));
-        }
-        catch (IOException e) {
-            TraceLog.error("Fail to load jar " + main.getJarFile(), e);
-        }
         BasicMain.HOLDER.put(TracerType.SQL, main);
         TraceLog.info("Sql main installed using args " + agentArgs);
 
     }
 
-    public static void premain(String agentArgs, Instrumentation inst) {
-        install(agentArgs, inst);
-    }
-
-    public static void agentmain(String agentArgs, Instrumentation inst) {
-        install(agentArgs, inst);
-    }
 }
