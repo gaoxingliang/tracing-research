@@ -4,7 +4,6 @@ import com.zoomphant.agent.trace.common.BasicMain;
 import com.zoomphant.agent.trace.common.TraceLog;
 import com.zoomphant.agent.trace.common.TracerType;
 import net.bytebuddy.agent.builder.AgentBuilder;
-import net.bytebuddy.asm.Advice;
 import net.bytebuddy.matcher.ElementMatchers;
 
 import java.lang.instrument.Instrumentation;
@@ -37,15 +36,17 @@ public class SqlMain extends BasicMain {
         if (!main.start(TracerType.SQL, agentArgs, inst)) {
             return;
         }
-        new AgentBuilder.Default().with(AgentBuilder.RedefinitionStrategy.RETRANSFORMATION)
+        new AgentBuilder.Default()
+                .with(AgentBuilder.RedefinitionStrategy.RETRANSFORMATION)
                 .disableClassFormatChanges()
                 .with( //new AgentBuilder.Listener.WithErrorsOnly(
                         new AgentBuilder.Listener.WithTransformationsOnly(
                                 AgentBuilder.Listener.StreamWriting.toSystemOut()))
                 .type(ElementMatchers.isSubTypeOf(Statement.class))
-                .transform((builder, typeDescription, classLoader, module) -> builder
-                        .visit(Advice.to(ExecuteAdvice.class).on((ElementMatchers.namedOneOf("executeQuery", "execute", "executeUpdate")
-                                .and(ElementMatchers.isPublic()))))).installOn(inst);
+                .transform(new AgentBuilder.Transformer.ForAdvice()
+                        // use this to avoid the classes loading problem - https://stackoverflow.com/questions/60237664/classpath-problems-while-instrumenting-springboot-application
+                        .advice(ElementMatchers.namedOneOf("executeQuery", "execute", "executeUpdate").and(ElementMatchers.isPublic()),
+                                ExecuteAdvice.class.getName())).installOn(inst);
 
         BasicMain.HOLDER.put(TracerType.SQL, main);
         TraceLog.info("Sql main installed using args " + agentArgs);

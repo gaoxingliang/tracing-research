@@ -86,5 +86,4 @@ rules:
     name: kafka_$1_$2_$3_$6
     labels:
       "$4": "$5"
-  - pattern: ""
 
