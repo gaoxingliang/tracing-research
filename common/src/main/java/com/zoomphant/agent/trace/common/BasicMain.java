@@ -3,6 +3,7 @@ package com.zoomphant.agent.trace.common;
 import com.alibaba.fastjson.JSONObject;
 import com.zoomphant.agent.trace.common.minimal.TraceLog;
 import com.zoomphant.agent.trace.common.minimal.TraceOption;
+import com.zoomphant.agent.trace.common.minimal.TracerType;
 import lombok.Getter;
 import org.apache.commons.lang3.StringUtils;
 
@@ -16,6 +17,7 @@ public abstract class BasicMain {
 
     @Getter
     protected Recorder recorder;
+
     @Getter
     protected Map<String, String> options;
 
@@ -27,24 +29,13 @@ public abstract class BasicMain {
     protected String jarFile;
 
     @Getter
-    protected String agentArgs;
+    protected final Instrumentation inst;
 
-    protected void _start(TracerType tracer, String agentArgs, Instrumentation inst) {
-        recorder = new Recorder(source, tracer, String.format("http://%s:%d/api/v2", chost, cport));
-    }
-
-    public final boolean start(TracerType tracer, String agentArgs, Instrumentation inst) {
-
-//        /**
-//         * let's check whether we have enabled this if so, let's do not do it anymore.
-//         */
-//        BasicMain existed = HOLDER.get(tracer);
-//        if (existed != null) {
-//            TraceLog.info("The tracer already exists. do not start this time anymore. " + tracer + " " + existed.agentArgs);
-//            return false;
-//        }
-
-        this.agentArgs = agentArgs;
+    @Getter
+    protected final ClassLoader whoLoadMe;
+    public BasicMain(String agentArgs, Instrumentation inst, ClassLoader whoLoadMe) {
+        this.inst = inst;
+        this.whoLoadMe = whoLoadMe;
         options = TraceOption.parseOptions(agentArgs);
         this.jarFile = TraceOption.getOption(options, TraceOption.JARFILE);
         chost = TraceOption.getOption(options, TraceOption.CENTRALHOST);
@@ -57,10 +48,16 @@ public abstract class BasicMain {
             // just a container name.
             source = containerName;
         }
-
-        _start(tracer, agentArgs, inst);
+        TracerType tracerType = TracerType.valueOf(TraceOption.getOption(options, TraceOption.TRACER_TYPE));
+        _start(tracerType, agentArgs, inst);
         Executors.newSingleThreadScheduledExecutor().scheduleAtFixedRate(() -> reportingContainerDiscoveryInfo(), 10, 30, TimeUnit.SECONDS);
-        return true;
+        install();
+    }
+
+    public abstract void install();
+
+    protected void _start(TracerType tracer, String agentArgs, Instrumentation inst) {
+        recorder = new Recorder(source, tracer, String.format("http://%s:%d/api/v2", chost, cport));
     }
 
     private void reportingContainerDiscoveryInfo() {
@@ -80,11 +77,5 @@ public abstract class BasicMain {
     protected ContainerDiscovery getContainerDiscovery() {
         return null;
     }
-
-
-    /**
-     * !todo no need this anymore. because we use bootstrap agent to load others.
-     */
-    // public static final ConcurrentHashMap<TracerType, BasicMain> HOLDER = new ConcurrentHashMap<>();
 
 }

@@ -1,6 +1,7 @@
 import com.zoomphant.agent.trace.AttachTask;
 import com.zoomphant.agent.trace.TraceMain;
 import com.zoomphant.agent.trace.common.minimal.TraceOption;
+import com.zoomphant.agent.trace.common.minimal.TracerType;
 
 import java.io.File;
 import java.util.HashMap;
@@ -23,7 +24,7 @@ public class ExampleTraceSQL {
         options.put(TraceOption.CENTRALPORT, "9411");
         options.put(TraceOption.CONTAINER, "MOCKED");
         options.put(TraceOption.JARFILE, jar);
-        options.put(TraceOption.AGENTCLASS, "com.zoomphant.agent.trace.sql.SqlMain");
+        options.put(TraceOption.TRACER_TYPE, TracerType.SQL.name());
         String boostjar = new File("./releaselibs/" + TraceMain.BOOTSTRAP_JAR).getCanonicalPath();
 
         Thread th = new Thread(new AttachTask(pid, boostjar, TraceOption.renderOptions(options)));

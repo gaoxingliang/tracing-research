@@ -20,7 +20,7 @@ public class TraceLog {
 
 
     public static void error(String msg, Throwable e) {
-        System.out.println(new Date() +" TRACE : Found error: " + getStackTrace(e));
+        System.out.println(new Date() +" TRACE : Found error: " + msg + getStackTrace(e));
         e.printStackTrace();
 
 //        LogRecord lr = new LogRecord(Level.SEVERE, msg);

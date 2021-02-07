@@ -1,11 +1,8 @@
 package com.zoomphant.agent.trace.kafka;
 
-import com.zoomphant.agent.trace.common.BasicMain;
 import com.zoomphant.agent.trace.common.ContainerDiscovery;
 import com.zoomphant.agent.trace.common.JMXMain;
 import com.zoomphant.agent.trace.common.JmxUtils;
-import com.zoomphant.agent.trace.common.TracerType;
-import com.zoomphant.agent.trace.common.minimal.TraceLog;
 
 import java.lang.instrument.Instrumentation;
 import java.util.HashMap;
@@ -16,6 +13,15 @@ public class KafkaMain extends JMXMain {
 
     private String clusterId;
     private String brokerId;
+
+    public KafkaMain(String agentArgs, Instrumentation inst, ClassLoader cl) {
+        super(agentArgs, inst, cl);
+    }
+
+    @Override
+    public void install() {
+        // do nothing
+    }
 
     @Override
     protected String getConfigYaml() {
@@ -56,27 +62,6 @@ public class KafkaMain extends JMXMain {
         ContainerDiscovery containerDiscovery = new ContainerDiscovery();
         containerDiscovery.getProcessTypeMap().put(ContainerDiscovery.ProcessType.KAFKA, adMap);
         return containerDiscovery;
-    }
-
-    private static void install(String agentArgs, Instrumentation inst) {
-        TraceLog.info("Will install kafka with " + agentArgs);
-        /**
-         * Starts a thread
-         */
-        KafkaMain main = new KafkaMain();
-        if (!main.start(TracerType.KAFKA_JMX, agentArgs, inst)) {
-            return;
-        }
-        BasicMain.HOLDER.put(TracerType.KAFKA_JMX, main);
-        TraceLog.info("Kafka main installed");
-    }
-
-    public static void premain(String agentArgs, Instrumentation inst) {
-        install(agentArgs, inst);
-    }
-
-    public static void agentmain(String agentArgs, Instrumentation inst) {
-        install(agentArgs, inst);
     }
 }
 

@@ -1,6 +1,6 @@
 package com.zoomphant.agent.trace.checker;
 
-import com.zoomphant.agent.trace.common.TracerType;
+import com.zoomphant.agent.trace.common.minimal.TracerType;
 
 public class SQLChecker extends JavaChecker{
     @Override

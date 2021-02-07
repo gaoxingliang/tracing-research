@@ -2,6 +2,7 @@ package com.zoomphant.agent.trace.common;
 
 import com.zoomphant.agent.trace.common.minimal.TraceLog;
 import com.zoomphant.agent.trace.common.minimal.TraceOption;
+import com.zoomphant.agent.trace.common.minimal.TracerType;
 import io.prometheus.jmx.shaded.io.prometheus.client.CollectorRegistry;
 import io.prometheus.jmx.shaded.io.prometheus.client.exporter.common.TextFormat;
 import io.prometheus.jmx.shaded.io.prometheus.client.hotspot.DefaultExports;
@@ -16,13 +17,17 @@ import java.util.Map;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
-public class JMXMain extends BasicMain {
+public abstract class JMXMain extends BasicMain {
     protected String prometheusReportedTo;
 
     /**
      * the headers all starts with the prefix in {@link TraceOption#REPORTING_HEADER_PREFIX}
      **/
     protected Map<String, String> reportingHeaders;
+
+    public JMXMain(String agentArgs, Instrumentation inst, ClassLoader cl) {
+        super(agentArgs, inst, cl);
+    }
 
     /**
      * get the jmx exporter yaml config file path

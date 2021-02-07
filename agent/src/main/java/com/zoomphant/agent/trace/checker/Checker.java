@@ -1,7 +1,7 @@
 package com.zoomphant.agent.trace.checker;
 
-import com.zoomphant.agent.trace.common.TracerType;
 import com.zoomphant.agent.trace.common.minimal.TraceLog;
+import com.zoomphant.agent.trace.common.minimal.TracerType;
 
 import java.util.HashMap;
 import java.util.Map;

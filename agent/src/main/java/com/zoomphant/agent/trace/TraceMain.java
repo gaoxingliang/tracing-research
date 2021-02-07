@@ -23,6 +23,8 @@ import java.util.concurrent.ConcurrentSkipListSet;
 
 public class TraceMain {
 
+    public static Integer testPid = null;
+
     public static final String BOOTSTRAP_JAR = "bootstrap-0.0.1-all.jar";
 
 
@@ -61,6 +63,9 @@ public class TraceMain {
                             // for each process collect the informations...
                             for (ProcInfo p : procInfoList) {
                                 if (alreadyAttachedProcces.contains(p.getId())) {
+                                    continue;
+                                }
+                                if (testPid != null && p.getId() != testPid) {
                                     continue;
                                 }
                                 List<DiscoveredInfo> discoveredInfos = new ArrayList<>();
@@ -113,9 +118,9 @@ public class TraceMain {
                                             Optional.ofNullable(System.getenv("CENTRAL_AGENT_SERVICE_SERVICE_HOST")).orElse("127.0.0.1"));
                                     options.put(TraceOption.CENTRALPORT, "9411");
                                     options.put(TraceOption.JARFILE, agentJarFinalPath);
-                                    options.put(TraceOption.AGENTCLASS, checker.supportedTracers().getMainClass());
+                                    options.put(TraceOption.TRACER_TYPE, checker.supportedTracers().name());
                                     options.putAll(TraceOption.buildReportingHeaders(reportingProps));
-                                    Thread th = new Thread(new AttachTask(p.getId(), bootstrapFinalPath, TraceOption.renderOptions(options)));
+                                    Thread th = new Thread(new AttachTask(p.getId(), agentJarFinalPath, TraceOption.renderOptions(options)));
                                     th.start();
                                     alreadyAttachedProcces.add(p.getId());
                                 }

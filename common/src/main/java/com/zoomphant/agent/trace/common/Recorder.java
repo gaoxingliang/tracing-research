@@ -1,13 +1,12 @@
 package com.zoomphant.agent.trace.common;
 
-import brave.Span;
-import brave.Tracer;
-import brave.Tracing;
 import com.zoomphant.agent.trace.common.minimal.TraceLog;
+import com.zoomphant.agent.trace.common.minimal.TracerType;
+import com.zoomphant.agent.trace.common.rewrite.MemoryBatchReporter;
+import com.zoomphant.agent.trace.common.rewrite.Span;
+import com.zoomphant.agent.trace.common.rewrite.SpanReporter;
+import com.zoomphant.agent.trace.common.rewrite.Tracer;
 import lombok.Getter;
-import zipkin2.reporter.brave.AsyncZipkinSpanHandler;
-import zipkin2.reporter.okhttp3.OkHttpSender;
-
 public class Recorder {
 
     @Getter
@@ -18,20 +17,9 @@ public class Recorder {
     public Recorder(String source, TracerType tracerType, String reportedToUrl) {
         this.source = source;
         this.tracerType = tracerType;
-
         // Configure a reporter, which controls how often spans are sent
-//   (this dependency is io.zipkin.reporter2:zipkin-sender-okhttp3)
-        // http://127.0.0.1:9411/api/v2/spans
-        OkHttpSender sender = OkHttpSender.create(reportedToUrl);
-//   (this dependency is io.zipkin.reporter2:zipkin-reporter-brave)
-        AsyncZipkinSpanHandler zipkinSpanHandler = AsyncZipkinSpanHandler.create(sender);
-
-// Create a tracing component with the service name you want to see in Zipkin.
-        Tracing tracing = Tracing.newBuilder()
-                .localServiceName(source)
-                .addSpanHandler(zipkinSpanHandler)
-                .build();
-        tracer = tracing.tracer();
+        SpanReporter s = new MemoryBatchReporter(reportedToUrl);
+        this.tracer = new Tracer(source, s);
     }
 
     /**
@@ -43,7 +31,8 @@ public class Recorder {
      */
     public Span recordStart(String op, String target, String... tags) {
         Span s = tracer.newTrace();
-        s.name(op).remoteServiceName(tracerType.getName() + "@" + target);
+        s.setName(op);
+        s.setRemote(tracerType.getName() + "@" + target);
         if (tags != null) {
             for (int i = 0; i < tags.length / 2; ) {
                 s.tag(tags[i], tags[i + 1]);
@@ -59,7 +48,7 @@ public class Recorder {
     public void recordFinish(Span span, Throwable e) {
         span.tag("_state", e == null ? "suc" : "fail");
         if (e != null) {
-            span.error(e);
+            span.error();
         }
         span.finish();
         TraceLog.debug("Finish span " + span);

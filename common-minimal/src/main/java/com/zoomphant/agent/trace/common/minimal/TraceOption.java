@@ -11,10 +11,8 @@ public class TraceOption {
     public static final String CONTAINER = "_container";
     public static final String NODENAME = "_node";
     public static final String PID = "_pid";
+    public static final String TRACER_TYPE = "_tracer";
     public static final String JARFILE = "_jar";
-    public static final String AGENTCLASS= "_agentClass";
-
-
 
     public static final String REPORTING_HEADER_PREFIX = "__r_";
 
