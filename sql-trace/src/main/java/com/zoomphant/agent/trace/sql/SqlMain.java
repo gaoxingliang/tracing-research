@@ -34,7 +34,7 @@ public class SqlMain extends BasicMain {
                                 AgentBuilder.Listener.StreamWriting.toSystemOut()))
                 .type(ElementMatchers.isSubTypeOf(Statement.class))
                 .transform(new AgentBuilder.Transformer.ForAdvice()
-                        .include(whoLoadedMe) // where to serach the execute class advice.
+                        // .include(TypePool.ClassLoading.of(whoLoadedMe)whoLoadedMe) // where to serach the execute class advice.
                         // use this to avoid the classes loading problem - https://stackoverflow
                         // .com/questions/60237664/classpath-problems-while-instrumenting-springboot-application
                         .advice(ElementMatchers.namedOneOf("executeQuery", "execute", "executeUpdate").and(ElementMatchers.isPublic()),

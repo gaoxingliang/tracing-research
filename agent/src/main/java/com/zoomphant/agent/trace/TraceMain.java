@@ -24,7 +24,7 @@ import java.util.concurrent.ConcurrentSkipListSet;
 public class TraceMain {
 
     public static final String BOOTSTRAP_JAR = "bootstrap-0.0.1-all.jar";
-
+    public static Integer testPid;
 
     public static Set<String> alreadyEnabledChecker = new ConcurrentSkipListSet<>();
     public static Set<Long> alreadyAttachedProcces = new ConcurrentSkipListSet<>();
@@ -61,6 +61,9 @@ public class TraceMain {
                             // for each process collect the informations...
                             for (ProcInfo p : procInfoList) {
                                 if (alreadyAttachedProcces.contains(p.getId())) {
+                                    continue;
+                                }
+                                if (testPid != null && testPid != p.getId()) {
                                     continue;
                                 }
                                 List<DiscoveredInfo> discoveredInfos = new ArrayList<>();
