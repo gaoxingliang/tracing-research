@@ -5,10 +5,6 @@ import java.util.Map;
 import java.util.Optional;
 
 public class TraceOption {
-    // physical NODE
-    public static final String PORT = "_port";
-    public static final String HOST = "_host";
-
     // central agent address
     public static final String CENTRALPORT = "_centralport";
     public static final String CENTRALHOST = "_centralhost";

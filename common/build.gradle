@@ -10,6 +10,7 @@ repositories {
 }
 
 dependencies {
+    compile group: 'com.alibaba', name: 'fastjson', version: '1.2.68'
 
     compile project(":common-minimal")
     // https://mvnrepository.com/artifact/net.bytebuddy/byte-buddy

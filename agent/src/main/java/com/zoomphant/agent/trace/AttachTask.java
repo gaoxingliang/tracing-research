@@ -2,27 +2,24 @@ package com.zoomphant.agent.trace;
 
 import com.zoomphant.agent.trace.common.VMUtil;
 import com.zoomphant.agent.trace.common.minimal.TraceLog;
-import com.zoomphant.agent.trace.common.minimal.TraceOption;
-
-import java.util.Map;
 
 public class AttachTask implements Runnable {
 
     private final long pid;
     private final String jarFile;
-    private final Map<String, String> options;
-    public AttachTask(long pid, String jarFile, Map<String, String> options) {
+    private final String args;
+    public AttachTask(long pid, String jarFile, String args) {
         this.pid = pid;
         this.jarFile = jarFile;
-        this.options = options;
+        this.args = args;
     }
 
 
     @Override
     public void run() {
-        TraceLog.info("Starting attaching " + pid);
+        TraceLog.info("Starting attaching " + pid + " with args " + args);
         try {
-            VMUtil.attach(pid + "", jarFile, TraceOption.renderOptions(options));
+            VMUtil.attach(pid + "", jarFile, args);
         } catch (Throwable e) {
             TraceLog.error("Fail to attaching / processing attach pid " + pid, e);
         }

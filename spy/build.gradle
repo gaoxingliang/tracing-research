@@ -1,0 +1,42 @@
+buildscript {
+    repositories {
+        jcenter()
+    }
+    dependencies {
+        // classpath 'com.github.jengelman.gradle.plugins:shadow:2.0.1'
+    }
+}
+
+plugins {
+    id 'java'
+    id "com.github.johnrengelman.shadow" version "5.0.0"
+}
+version '0.0.1'
+
+repositories {
+    mavenCentral()
+}
+
+
+apply plugin: 'java'
+apply plugin: 'com.github.johnrengelman.shadow'
+
+
+
+dependencies {
+}
+
+
+shadowJar {
+}
+
+task copyToUpperLibs(type: Copy) {
+    from file("build/libs/")
+    into getRootProject().getProjectDir().getAbsolutePath() + "/releaselibs"
+}
+
+task build(overwrite: true) {
+    dependsOn = ['clean', 'shadowJar', 'copyToUpperLibs']
+    shadowJar.mustRunAfter clean
+    copyToUpperLibs.mustRunAfter shadowJar
+}

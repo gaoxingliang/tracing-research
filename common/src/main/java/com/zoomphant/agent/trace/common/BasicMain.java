@@ -1,5 +1,6 @@
 package com.zoomphant.agent.trace.common;
 
+import com.alibaba.fastjson.JSONObject;
 import com.zoomphant.agent.trace.common.minimal.TraceLog;
 import com.zoomphant.agent.trace.common.minimal.TraceOption;
 import lombok.Getter;
@@ -8,7 +9,6 @@ import org.apache.commons.lang3.StringUtils;
 import java.io.IOException;
 import java.lang.instrument.Instrumentation;
 import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
@@ -35,14 +35,14 @@ public abstract class BasicMain {
 
     public final boolean start(TracerType tracer, String agentArgs, Instrumentation inst) {
 
-        /**
-         * let's check whether we have enabled this if so, let's do not do it anymore.
-         */
-        BasicMain existed = HOLDER.get(tracer);
-        if (existed != null) {
-            TraceLog.info("The tracer already exists. do not start this time anymore. " + tracer + " " + existed.agentArgs);
-            return false;
-        }
+//        /**
+//         * let's check whether we have enabled this if so, let's do not do it anymore.
+//         */
+//        BasicMain existed = HOLDER.get(tracer);
+//        if (existed != null) {
+//            TraceLog.info("The tracer already exists. do not start this time anymore. " + tracer + " " + existed.agentArgs);
+//            return false;
+//        }
 
         this.agentArgs = agentArgs;
         options = TraceOption.parseOptions(agentArgs);
@@ -69,7 +69,7 @@ public abstract class BasicMain {
             try {
                 d.source = source;
 
-                HttpUtils.post(String.format("http://%s:%d/api/discover", chost, cport), OutputUtils.writeObject(d), null);
+                HttpUtils.post(String.format("http://%s:%d/api/discover", chost, cport), JSONObject.toJSONString(d), null);
             }
             catch (IOException e) {
                 TraceLog.warn("Fail to post remote " + e.getMessage());
@@ -82,6 +82,9 @@ public abstract class BasicMain {
     }
 
 
-    public static final ConcurrentHashMap<TracerType, BasicMain> HOLDER = new ConcurrentHashMap<>();
+    /**
+     * !todo no need this anymore. because we use bootstrap agent to load others.
+     */
+    // public static final ConcurrentHashMap<TracerType, BasicMain> HOLDER = new ConcurrentHashMap<>();
 
 }

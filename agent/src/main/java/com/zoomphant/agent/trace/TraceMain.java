@@ -23,7 +23,7 @@ import java.util.concurrent.ConcurrentSkipListSet;
 
 public class TraceMain {
 
-    public static final String bootstrap = "boost-0.0.1-all.jar";
+    public static final String BOOTSTRAP_JAR = "bootstrap-0.0.1-all.jar";
 
 
     public static Set<String> alreadyEnabledChecker = new ConcurrentSkipListSet<>();
@@ -70,8 +70,10 @@ public class TraceMain {
                                     discoveredInfos.add(discoveredInfo);
                                     //            /Users/edward/projects/forked/tracing-research/sql-trace/build/libs/sql-trace-0.0.1-all.jar
                                     // The jar is on the physical host node
-                                    File jarFile = new File(libsFolder, checker.supportedTracers().getJar());
-                                    String jar = jarFile.getCanonicalPath();
+                                    File agentJarFileOnHost = new File(libsFolder, checker.supportedTracers().getJar());
+                                    String agentJarFinalPath = agentJarFileOnHost.getCanonicalPath();
+                                    File bootstrapJarFileOnHost = new File(libsFolder, BOOTSTRAP_JAR);
+                                    String bootstrapFinalPath = bootstrapJarFileOnHost.getCanonicalPath();
                                     // it's it's a docker process
                                     if (p.getContainerId() != null) {
                                         // let's copy the jar file
@@ -83,37 +85,37 @@ public class TraceMain {
                                                 tmpDir.mkdirs();
                                                 TraceLog.info("mkir tmpdir " + tmpDir);
                                             }
+
                                             File f = Paths.get(tmpDir.getAbsolutePath(), "zpdir").toFile();
                                             if (!f.exists()) {
                                                 f.mkdirs();
                                             }
-                                            File dockerRootFile = new File(f, checker.supportedTracers().getJar());
-                                            FileUtils.copyFile(jarFile, dockerRootFile);
-                                            TraceLog.debug("Copy file " + dockerRootFile.getCanonicalPath());
+
+                                            File agentJarFileOnDocker = new File(f, checker.supportedTracers().getJar());
+                                            FileUtils.copyFile(agentJarFileOnHost, agentJarFileOnDocker);
+                                            File bootstrapJarFileOnDocker = new File(f, BOOTSTRAP_JAR);
+                                            FileUtils.copyFile(bootstrapJarFileOnHost, bootstrapJarFileOnDocker);
+                                            TraceLog.debug("Copy file " + agentJarFileOnDocker.getCanonicalPath() + " and " + bootstrapJarFileOnDocker.getCanonicalPath());
                                             // This will be the dir which the process in docker can see this file....
-                                            jar = "/tmp/zpdir/" + checker.supportedTracers().getJar();
-                                            /**
-                                             * !todo copy the bootstrap too
-                                             */
+                                            agentJarFinalPath = "/tmp/zpdir/" + agentJarFileOnDocker.getName();
+                                            bootstrapFinalPath = "/tmp/zpdir/" + bootstrapJarFileOnDocker.getName();
                                         }
                                         else {
                                             TraceLog.info("Error. The container didn't have a proc root dir " + rootDir);
                                         }
                                     }
 
-
                                     Map<String, String> options = new HashMap<>();
-                                    options.put(TraceOption.HOST, "127.0.0.1");
-                                    options.put(TraceOption.PORT, HostServer.DEFAULT_PORT + "");
                                     options.put(TraceOption.PID, p.getId() + "");
                                     options.put(TraceOption.CONTAINER, p.getContainerId());
                                     options.put(TraceOption.NODENAME, Optional.ofNullable(System.getenv("_ZP_ENV_NODE")).orElse("mocknode"));
                                     options.put(TraceOption.CENTRALHOST,
                                             Optional.ofNullable(System.getenv("CENTRAL_AGENT_SERVICE_SERVICE_HOST")).orElse("127.0.0.1"));
                                     options.put(TraceOption.CENTRALPORT, "9411");
-                                    options.put(TraceOption.JARFILE, jar);
+                                    options.put(TraceOption.JARFILE, agentJarFinalPath);
+                                    options.put(TraceOption.AGENTCLASS, checker.supportedTracers().getMainClass());
                                     options.putAll(TraceOption.buildReportingHeaders(reportingProps));
-                                    Thread th = new Thread(new AttachTask(p.getId(), bootstrap, options));
+                                    Thread th = new Thread(new AttachTask(p.getId(), bootstrapFinalPath, TraceOption.renderOptions(options)));
                                     th.start();
                                     alreadyAttachedProcces.add(p.getId());
                                 }

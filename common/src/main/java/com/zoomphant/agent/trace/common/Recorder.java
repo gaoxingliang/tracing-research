@@ -52,7 +52,7 @@ public class Recorder {
         }
         s.tag("_state", "");
         s.start();
-        TraceLog.info("Started span " + s);
+        TraceLog.debug("Started span " + s);
         return s;
     }
 
@@ -62,6 +62,6 @@ public class Recorder {
             span.error(e);
         }
         span.finish();
-        TraceLog.info("Finish span " + span);
+        TraceLog.debug("Finish span " + span);
     }
 }
