@@ -7,12 +7,15 @@ For now there are two main types of tracers:
 - only bytebuddy agents.  based on tracer and reported to remote client (as zipkin data).
 
 ## kafka trace
-Now it scraped the full jmx beans. and reported to central agent. <br> 
+Now it scraped the full jmx beans of a kafka process. and reported to central agent. <br> 
 and it provides the unique `kafka_brokerid` and `kafka_clusterid` as the label in prometheus metrics.
 
 ## sql trace
 Now it visits the java processes using jdbc connections. Which will generate trace data. <br>
 the source is the containerId. and the target is: sql@jdbcurl.
+
+## kafka-java trace
+Track the java processes which using the kafka related library.
 
 # for the agent module
 run the `gradle build` and now files are under agentlibs. This is used to starts:

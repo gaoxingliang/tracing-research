@@ -24,6 +24,10 @@ import java.util.concurrent.ConcurrentSkipListSet;
 
 public class TraceMain {
 
+    /**
+     * this is used for test purpose.
+     * When this is set. we only match process contains this command.
+     */
     public static String testCmd = null;
 
     public static final String BOOTSTRAP_JAR = "bootstrap-0.0.1-all.jar";
