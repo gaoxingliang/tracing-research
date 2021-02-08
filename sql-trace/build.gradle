@@ -43,8 +43,8 @@ jar {
 
 shadowJar {
     // bytebuddy win32 dll. no need
-    exclude('attach_hotspot_windows.dll')
-    //exclude('win32-x86-64/attach_hotspot_windows.dll')
+    exclude('/win32-x86/attach_hotspot_windows.dll')
+    exclude('win32-x86-64/attach_hotspot_windows.dll')
     manifest {
         inheritFrom project.tasks.jar.manifest
     }
