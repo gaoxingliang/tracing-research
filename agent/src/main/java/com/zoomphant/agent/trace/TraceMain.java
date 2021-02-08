@@ -12,6 +12,7 @@ import com.zoomphant.agent.trace.common.minimal.TraceOption;
 import org.apache.commons.io.FileUtils;
 
 import java.io.File;
+import java.io.IOException;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -23,10 +24,10 @@ import java.util.concurrent.ConcurrentSkipListSet;
 
 public class TraceMain {
 
-    public static Integer testPid = null;
+    public static String testCmd = null;
 
     public static final String BOOTSTRAP_JAR = "bootstrap-0.0.1-all.jar";
-
+    public static final String SPY_JAR = "spy-0.0.1-all.jar";
 
     public static Set<String> alreadyEnabledChecker = new ConcurrentSkipListSet<>();
     public static Set<Long> alreadyAttachedProcces = new ConcurrentSkipListSet<>();
@@ -65,7 +66,7 @@ public class TraceMain {
                                 if (alreadyAttachedProcces.contains(p.getId())) {
                                     continue;
                                 }
-                                if (testPid != null && p.getId() != testPid) {
+                                if (testCmd != null && !p.getCmd().contains(testCmd)) {
                                     continue;
                                 }
                                 List<DiscoveredInfo> discoveredInfos = new ArrayList<>();
@@ -75,35 +76,27 @@ public class TraceMain {
                                     discoveredInfos.add(discoveredInfo);
                                     //            /Users/edward/projects/forked/tracing-research/sql-trace/build/libs/sql-trace-0.0.1-all.jar
                                     // The jar is on the physical host node
-                                    File agentJarFileOnHost = new File(libsFolder, checker.supportedTracers().getJar());
-                                    String agentJarFinalPath = agentJarFileOnHost.getCanonicalPath();
-                                    File bootstrapJarFileOnHost = new File(libsFolder, BOOTSTRAP_JAR);
-                                    String bootstrapFinalPath = bootstrapJarFileOnHost.getCanonicalPath();
+                                    String agentJarFinalPath = new File(libsFolder, checker.supportedTracers().getJar()).getCanonicalPath();
+                                    String bootstrapFinalPath = new File(libsFolder, BOOTSTRAP_JAR).getCanonicalPath();
+                                    String spyFinalPath = new File(libsFolder, SPY_JAR).getCanonicalPath();
+                                    String [] agentBootstrapSpy = new String[] {checker.supportedTracers().getJar(), BOOTSTRAP_JAR, SPY_JAR};
+
                                     // it's it's a docker process
                                     if (p.getContainerId() != null) {
                                         // let's copy the jar file
                                         // We have to copy the jar when attaching a process which is in docker.
                                         File rootDir = new File("/proc/" + p.getId() + "/root");
                                         if (rootDir.exists()) {
-                                            File tmpDir = new File(rootDir, "tmp");
-                                            if (!(tmpDir.exists() && tmpDir.isDirectory())) {
-                                                tmpDir.mkdirs();
-                                                TraceLog.info("mkir tmpdir " + tmpDir);
+                                            File f = Paths.get(rootDir.getAbsolutePath(), "tmp", "zpdir").toFile();
+                                            f.mkdirs();
+                                            for (String fileNeedCopy : agentBootstrapSpy) {
+                                                copyFileFromHost2Docker(libsFolder, f.getAbsolutePath(), fileNeedCopy);
                                             }
-
-                                            File f = Paths.get(tmpDir.getAbsolutePath(), "zpdir").toFile();
-                                            if (!f.exists()) {
-                                                f.mkdirs();
-                                            }
-
-                                            File agentJarFileOnDocker = new File(f, checker.supportedTracers().getJar());
-                                            FileUtils.copyFile(agentJarFileOnHost, agentJarFileOnDocker);
-                                            File bootstrapJarFileOnDocker = new File(f, BOOTSTRAP_JAR);
-                                            FileUtils.copyFile(bootstrapJarFileOnHost, bootstrapJarFileOnDocker);
-                                            TraceLog.debug("Copy file " + agentJarFileOnDocker.getCanonicalPath() + " and " + bootstrapJarFileOnDocker.getCanonicalPath());
                                             // This will be the dir which the process in docker can see this file....
-                                            agentJarFinalPath = "/tmp/zpdir/" + agentJarFileOnDocker.getName();
-                                            bootstrapFinalPath = "/tmp/zpdir/" + bootstrapJarFileOnDocker.getName();
+                                            agentJarFinalPath = "/tmp/zpdir/" + agentBootstrapSpy[0];
+                                            bootstrapFinalPath = "/tmp/zpdir/" + agentBootstrapSpy[1];
+                                            spyFinalPath = "/tmp/zpdir/" + agentBootstrapSpy[2];
+                                            TraceLog.info("Copied all files to remote " + rootDir);
                                         }
                                         else {
                                             TraceLog.info("Error. The container didn't have a proc root dir " + rootDir);
@@ -118,9 +111,11 @@ public class TraceMain {
                                             Optional.ofNullable(System.getenv("CENTRAL_AGENT_SERVICE_SERVICE_HOST")).orElse("127.0.0.1"));
                                     options.put(TraceOption.CENTRALPORT, "9411");
                                     options.put(TraceOption.JARFILE, agentJarFinalPath);
+                                    options.put(TraceOption.BOOTSTRAP_JAR, bootstrapFinalPath);
+                                    options.put(TraceOption.SPY_JAR, spyFinalPath);
                                     options.put(TraceOption.TRACER_TYPE, checker.supportedTracers().name());
                                     options.putAll(TraceOption.buildReportingHeaders(reportingProps));
-                                    Thread th = new Thread(new AttachTask(p.getId(), agentJarFinalPath, TraceOption.renderOptions(options)));
+                                    Thread th = new Thread(new AttachTask(p.getId(), bootstrapFinalPath, TraceOption.renderOptions(options)));
                                     th.start();
                                     alreadyAttachedProcces.add(p.getId());
                                 }
@@ -139,6 +134,11 @@ public class TraceMain {
             }).start();
             return true;
         }
+    }
+
+
+    private static void copyFileFromHost2Docker(String sourceDirInHost, String targetDirInDocker, String fileName) throws IOException {
+        FileUtils.copyFile(new File(sourceDirInHost, fileName), new File(targetDirInDocker, fileName));
     }
 
     public static void main(String[] args) throws InterruptedException {

@@ -2,8 +2,8 @@ package com.zoomphant.agent.trace;
 
 
 import com.zoomphant.agent.trace.checker.ProcInfo;
+import com.zoomphant.agent.trace.common.minimal.StringUtils;
 import com.zoomphant.agent.trace.common.minimal.TraceLog;
-import org.apache.commons.lang3.StringUtils;
 import oshi.SystemInfo;
 import oshi.software.os.OperatingSystem;
 
@@ -21,7 +21,8 @@ public class ProcessUtils {
                     long pid = p.getProcessID();
                     String cmd = p.getCommandLine();
                     String containerName = DockerUtils.getContainerName(pid);
-                    TraceLog.debug(String.format("Found process %d cmd=%s, container=%s", pid, StringUtils.abbreviate(cmd, 100), containerName));
+                    TraceLog.debug(String.format("Found process %d cmd=%s, container=%s", pid,
+                            StringUtils.abbr(cmd, 100), containerName));
                     return ProcInfo.builder().args(Arrays.asList(new String[0])).cmd(cmd).id(pid).containerId(containerName == null ? ""
                             : containerName).build();
                 }).collect(Collectors.toList());

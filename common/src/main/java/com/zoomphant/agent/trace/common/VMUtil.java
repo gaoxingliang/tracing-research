@@ -1,9 +1,9 @@
 package com.zoomphant.agent.trace.common;
 
 import com.sun.tools.attach.VirtualMachine;
+import com.zoomphant.agent.trace.common.minimal.ExceptionUtils;
 import com.zoomphant.agent.trace.common.minimal.TraceLog;
 import lombok.experimental.UtilityClass;
-import org.apache.commons.lang3.exception.ExceptionUtils;
 
 @UtilityClass
 public class VMUtil {
@@ -20,7 +20,7 @@ public class VMUtil {
             TraceLog.info("Loaded agent " + jarFile + " for pid = " + pid + " with option=" + option);
         }
         catch (Exception e) {
-            if (ExceptionUtils.getRootCauseMessage(e).contains("AgentLoadException: 0")) {
+            if (ExceptionUtils.rootCause(e).toString().contains("AgentLoadException: 0")) {
                 // when attach on a jdk8 process using jdk11...
                 // it's normal here.
             }

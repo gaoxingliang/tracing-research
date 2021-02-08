@@ -1,8 +1,8 @@
 package com.zoomphant.agent.trace.kafka;
 
-import com.zoomphant.agent.trace.common.ContainerDiscovery;
 import com.zoomphant.agent.trace.common.JMXMain;
 import com.zoomphant.agent.trace.common.JmxUtils;
+import com.zoomphant.agent.trace.common.minimal.ContainerDiscovery;
 
 import java.lang.instrument.Instrumentation;
 import java.util.HashMap;

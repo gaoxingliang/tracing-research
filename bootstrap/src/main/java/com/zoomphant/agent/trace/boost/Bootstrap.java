@@ -1,5 +1,7 @@
 package com.zoomphant.agent.trace.boost;
 
+import com.zoomphant.agent.trace.common.minimal.BasicMain;
+import com.zoomphant.agent.trace.common.minimal.MainHolders;
 import com.zoomphant.agent.trace.common.minimal.TraceLog;
 import com.zoomphant.agent.trace.common.minimal.TraceOption;
 import com.zoomphant.agent.trace.common.minimal.TracerType;
@@ -9,15 +11,11 @@ import java.lang.instrument.Instrumentation;
 import java.lang.reflect.Constructor;
 import java.net.URL;
 import java.util.Map;
-import java.util.concurrent.ConcurrentSkipListSet;
 import java.util.jar.JarFile;
 
 public class Bootstrap {
 
-    public static final String SPY_JAR = "spy-0.0.1-all.jar";
     public static final String SPY_CLASS = "com.zoomphant.agent.trace.spy.Spy";
-
-    public static final String install = "install";
 
     public static void premain(String agentArgs, Instrumentation inst) {
         run(agentArgs, inst);
@@ -27,12 +25,7 @@ public class Bootstrap {
         run(agentArgs, inst);
     }
 
-    public static final ConcurrentSkipListSet loadedAgents = new ConcurrentSkipListSet();
-
     public static void run(String agentArgs, Instrumentation instrumentation) {
-
-        TraceLog.info("My classloader:" + TraceLog.class.getClassLoader());
-        TraceLog.info("Current classloader:" + Bootstrap.class.getClassLoader());
 
         // parse the dest fill
         Map<String, String> options = TraceOption.parseOptions(agentArgs);
@@ -52,7 +45,7 @@ public class Bootstrap {
                 }
             }
             if (spyClass == null) {
-                File spyJarFile = new File(new File(agentFile).getParent(), SPY_JAR);
+                File spyJarFile = new File(TraceOption.getOption(options, TraceOption.SPY_JAR));
                 instrumentation.appendToBootstrapClassLoaderSearch(new JarFile(spyJarFile));
                 spyClass = parent.loadClass(SPY_CLASS);
             }
@@ -61,15 +54,15 @@ public class Bootstrap {
                 TraceLog.info("The class already register " + agentClass);
                 return;
             }
-            instrumentation.appendToSystemClassLoaderSearch(new JarFile(new File(agentFile)));
-            StandaloneAgentClassloader arthasClassLoader = new StandaloneAgentClassloader(
-                    new URL[] {new File(agentFile).toURI().toURL()});
-
-            ClassLoader.getSystemClassLoader().loadClass(agentClass);
-
+            // apply the bootstrap jar
+            instrumentation.appendToBootstrapClassLoaderSearch(new JarFile(new File(TraceOption.getOption(options, TraceOption.BOOTSTRAP_JAR))));
+            StandaloneAgentClassloader arthasClassLoader = new StandaloneAgentClassloader(new URL[] {new File(agentFile).toURL()}, parent);
+            arthasClassLoader.loadClass(agentClass);
             Class c = arthasClassLoader.loadClass(agentClass);
             Constructor con = c.getConstructor(String.class, Instrumentation.class, ClassLoader.class);
-            con.newInstance(agentArgs, instrumentation, arthasClassLoader);
+
+            Object basicMain = con.newInstance(agentArgs, instrumentation, arthasClassLoader);
+            MainHolders.register(agentClass, (BasicMain) basicMain);
             TraceLog.info("Success install " + agentClass);
         }
         catch (Exception e) {

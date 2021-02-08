@@ -1,11 +1,6 @@
-package com.zoomphant.agent.trace.common;
+package com.zoomphant.agent.trace.common.minimal;
 
-import com.alibaba.fastjson.JSONObject;
-import com.zoomphant.agent.trace.common.minimal.TraceLog;
-import com.zoomphant.agent.trace.common.minimal.TraceOption;
-import com.zoomphant.agent.trace.common.minimal.TracerType;
 import lombok.Getter;
-import org.apache.commons.lang3.StringUtils;
 
 import java.io.IOException;
 import java.lang.instrument.Instrumentation;
@@ -14,6 +9,7 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
 public abstract class BasicMain {
+
 
     @Getter
     protected Recorder recorder;
@@ -41,7 +37,7 @@ public abstract class BasicMain {
         chost = TraceOption.getOption(options, TraceOption.CENTRALHOST);
         cport = TraceOption.getOptionInt(options, TraceOption.CENTRALPORT);
         String containerName = TraceOption.getOption(options, TraceOption.CONTAINER);
-        if (StringUtils.isEmpty(containerName)) {
+        if (containerName == null || containerName.isEmpty()) {
             // pid@nodename
             source = TraceOption.getOptionInt(options, TraceOption.PID) + "@" + TraceOption.getOption(options, TraceOption.NODENAME);
         } else {
@@ -57,7 +53,7 @@ public abstract class BasicMain {
     public abstract void install();
 
     protected void _start(TracerType tracer, String agentArgs, Instrumentation inst) {
-        recorder = new Recorder(source, tracer, String.format("http://%s:%d/api/v2", chost, cport));
+        recorder = new Recorder(source, tracer, String.format("http://%s:%d/trace/binary", chost, cport));
     }
 
     private void reportingContainerDiscoveryInfo() {
@@ -66,7 +62,7 @@ public abstract class BasicMain {
             try {
                 d.source = source;
 
-                HttpUtils.post(String.format("http://%s:%d/api/discover", chost, cport), JSONObject.toJSONString(d), null);
+                HttpUtils.post(String.format("http://%s:%d/api/discover", chost, cport), OutputUtils.toBytes(d), null);
             }
             catch (IOException e) {
                 TraceLog.warn("Fail to post remote " + e.getMessage());

@@ -1,7 +1,7 @@
 package com.zoomphant.agent.trace.sql;
 
-import com.zoomphant.agent.trace.common.BasicMain;
-import com.zoomphant.agent.trace.common.MainHolders;
+import com.zoomphant.agent.trace.common.minimal.BasicMain;
+import com.zoomphant.agent.trace.common.minimal.MainHolders;
 import com.zoomphant.agent.trace.common.minimal.TraceLog;
 import net.bytebuddy.agent.builder.AgentBuilder;
 import net.bytebuddy.matcher.ElementMatchers;
@@ -11,7 +11,6 @@ import java.sql.Statement;
 
 public class SqlMain extends BasicMain {
 
-    public static final String NAME = "SqlMain";
 
     public SqlMain(String agentArgs, Instrumentation inst, ClassLoader classLoader) {
         super(agentArgs, inst, classLoader);
@@ -19,9 +18,7 @@ public class SqlMain extends BasicMain {
 
     @Override
     public void install() {
-        // in application
-        MainHolders.register(NAME, this);
-        TraceLog.info("The main holder is: " + MainHolders.class.getClassLoader());
+        TraceLog.info("The MainHolders is loaded by " + MainHolders.class.getClassLoader());
         new AgentBuilder.Default()
                 .with(AgentBuilder.RedefinitionStrategy.RETRANSFORMATION)
                 .disableClassFormatChanges()
@@ -30,7 +27,7 @@ public class SqlMain extends BasicMain {
                                 AgentBuilder.Listener.StreamWriting.toSystemOut()))
                 .type(ElementMatchers.isSubTypeOf(Statement.class))
                 .transform(new AgentBuilder.Transformer.ForAdvice()
-                       // .include(whoLoadMe)
+                        .include(whoLoadMe) // where to search the advice.
                         // use this to avoid the classes loading problem - https://stackoverflow
                         // .com/questions/60237664/classpath-problems-while-instrumenting-springboot-application
                         .advice(ElementMatchers.namedOneOf("executeQuery", "execute", "executeUpdate").and(ElementMatchers.isPublic()),

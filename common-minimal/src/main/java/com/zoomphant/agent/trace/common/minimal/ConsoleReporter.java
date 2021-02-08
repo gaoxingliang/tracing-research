@@ -1,8 +1,6 @@
-package com.zoomphant.agent.trace.common.rewrite;
+package com.zoomphant.agent.trace.common.minimal;
 
-import com.zoomphant.agent.trace.common.minimal.TraceLog;
-
-public class ConsoleReporter implements SpanReporter{
+public class ConsoleReporter implements SpanReporter {
     @Override
     public boolean start(Span s) {
         TraceLog.info("Started " + s);

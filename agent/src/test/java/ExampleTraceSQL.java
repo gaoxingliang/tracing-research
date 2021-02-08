@@ -16,7 +16,7 @@ public class ExampleTraceSQL {
         String x = "execute|executeUpdate|executeQuery";
         System.out.println(Pattern.matches(x, "executeQuery"));
 
-        long pid = 45806;
+        long pid = 7464;
         //            /Users/edward/projects/forked/tracing-research/sql-trace/build/libs/sql-trace-0.0.1-all.jar
         String jar = new File("./releaselibs/sql-trace-0.0.1-all.jar").getCanonicalPath();
         Map<String, String> options = new HashMap<>();
@@ -27,7 +27,7 @@ public class ExampleTraceSQL {
         options.put(TraceOption.TRACER_TYPE, TracerType.SQL.name());
         String boostjar = new File("./releaselibs/" + TraceMain.BOOTSTRAP_JAR).getCanonicalPath();
 
-        Thread th = new Thread(new AttachTask(pid, boostjar, TraceOption.renderOptions(options)));
+        Thread th = new Thread(new AttachTask(pid, jar, TraceOption.renderOptions(options)));
         th.start();
 
         // _centralhost=127.0.0.1##_host=127.0.0.1##_centralport=9411##_port=19234

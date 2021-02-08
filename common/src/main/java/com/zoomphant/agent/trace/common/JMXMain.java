@@ -1,5 +1,9 @@
 package com.zoomphant.agent.trace.common;
 
+import com.zoomphant.agent.trace.common.minimal.BasicMain;
+import com.zoomphant.agent.trace.common.minimal.ExceptionUtils;
+import com.zoomphant.agent.trace.common.minimal.HttpUtils;
+import com.zoomphant.agent.trace.common.minimal.StringUtils;
 import com.zoomphant.agent.trace.common.minimal.TraceLog;
 import com.zoomphant.agent.trace.common.minimal.TraceOption;
 import com.zoomphant.agent.trace.common.minimal.TracerType;
@@ -7,8 +11,6 @@ import io.prometheus.jmx.shaded.io.prometheus.client.CollectorRegistry;
 import io.prometheus.jmx.shaded.io.prometheus.client.exporter.common.TextFormat;
 import io.prometheus.jmx.shaded.io.prometheus.client.hotspot.DefaultExports;
 import io.prometheus.jmx.shaded.io.prometheus.jmx.JmxCollector;
-import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.lang3.exception.ExceptionUtils;
 
 import java.io.StringWriter;
 import java.lang.instrument.Instrumentation;
@@ -79,9 +81,9 @@ public abstract class JMXMain extends BasicMain {
             StringWriter sw = new StringWriter(1024 * 4);
             TextFormat.write004(sw, registry.metricFamilySamples());
             HttpUtils.post(prometheusReportedTo, sw.toString(), reportingHeaders);
-            TraceLog.info("Posting data " + StringUtils.abbreviate(sw.toString(), 100));
+            TraceLog.info("Posting data " + StringUtils.abbr(sw.toString(), 100));
         } catch (Exception e) {
-            TraceLog.info("Fail to report " + ExceptionUtils.getRootCauseMessage(e));
+            TraceLog.info("Fail to report " + ExceptionUtils.fullStack(e));
         }
     }
 }

@@ -1,4 +1,4 @@
-package com.zoomphant.agent.trace.common;
+package com.zoomphant.agent.trace.common.minimal;
 
 import java.io.Closeable;
 import java.io.IOException;

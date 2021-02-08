@@ -1,22 +1,18 @@
-package com.zoomphant.agent.trace.common;
-
-import okhttp3.OkHttpClient;
+package com.zoomphant.agent.trace.common.minimal;
 
 import java.io.IOException;
 import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.Map;
-import java.util.concurrent.TimeUnit;
 
 public class HttpUtils {
-    private static final OkHttpClient client = new OkHttpClient.Builder().callTimeout(10, TimeUnit.SECONDS)
-            .connectTimeout(10, TimeUnit.SECONDS).build();
 
 
-    public static void post(String urlString, byte[] body, Map<String, String> headers) throws IOException {
+    public static int post(String urlString, byte[] body, Map<String, String> headers) throws IOException {
         URL url = new URL (urlString);
         HttpURLConnection con = null;
+        OutputStream os = null;
         try {
             con = (HttpURLConnection) url.openConnection();
             con.setRequestMethod("POST");
@@ -25,9 +21,13 @@ public class HttpUtils {
                 headers.forEach((k, v) -> f.addRequestProperty(k, v));
             }
             con.setDoOutput(true);
-            OutputStream os = con.getOutputStream();
+            os = con.getOutputStream();
             os.write(body, 0, body.length);
+            os.flush();
+            os.close();
+            return con.getResponseCode();
         } finally {
+            IOUtils.close(os);
             IOUtils.close(con);
         }
 

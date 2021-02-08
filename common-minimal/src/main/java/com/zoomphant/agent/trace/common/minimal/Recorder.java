@@ -1,12 +1,7 @@
-package com.zoomphant.agent.trace.common;
+package com.zoomphant.agent.trace.common.minimal;
 
-import com.zoomphant.agent.trace.common.minimal.TraceLog;
-import com.zoomphant.agent.trace.common.minimal.TracerType;
-import com.zoomphant.agent.trace.common.rewrite.MemoryBatchReporter;
-import com.zoomphant.agent.trace.common.rewrite.Span;
-import com.zoomphant.agent.trace.common.rewrite.SpanReporter;
-import com.zoomphant.agent.trace.common.rewrite.Tracer;
 import lombok.Getter;
+
 public class Recorder {
 
     @Getter
@@ -41,7 +36,6 @@ public class Recorder {
         }
         s.tag("_state", "");
         s.start();
-        TraceLog.debug("Started span " + s);
         return s;
     }
 
@@ -51,6 +45,6 @@ public class Recorder {
             span.error();
         }
         span.finish();
-        TraceLog.debug("Finish span " + span);
+        this.tracer.getSpanReporter().finish(span);
     }
 }

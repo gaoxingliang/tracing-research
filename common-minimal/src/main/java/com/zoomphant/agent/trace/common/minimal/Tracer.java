@@ -1,7 +1,10 @@
-package com.zoomphant.agent.trace.common.rewrite;
+package com.zoomphant.agent.trace.common.minimal;
+
+import lombok.Getter;
 
 public class Tracer {
 
+    @Getter
     private final SpanReporter spanReporter;
     private String name;
 
@@ -12,7 +15,7 @@ public class Tracer {
 
     public Span newTrace() {
         Span s = new Span();
-        s.setSpanReporter(spanReporter);
+        s.setLocal(name);
         s.setId(System.currentTimeMillis() + "");
         return s;
     }

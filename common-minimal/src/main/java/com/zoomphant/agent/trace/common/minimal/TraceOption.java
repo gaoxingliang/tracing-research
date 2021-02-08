@@ -12,7 +12,10 @@ public class TraceOption {
     public static final String NODENAME = "_node";
     public static final String PID = "_pid";
     public static final String TRACER_TYPE = "_tracer";
-    public static final String JARFILE = "_jar";
+    public static final String JARFILE = "_jar"; // the agent jar
+    public static final String BOOTSTRAP_JAR = "_bootstrap_jar";
+    public static final String SPY_JAR = "_spy_jar";
+
 
     public static final String REPORTING_HEADER_PREFIX = "__r_";
 

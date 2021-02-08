@@ -1,4 +1,4 @@
-package com.zoomphant.agent.trace.common.rewrite;
+package com.zoomphant.agent.trace.common.minimal;
 
 public interface SpanReporter {
     boolean start(Span s);
