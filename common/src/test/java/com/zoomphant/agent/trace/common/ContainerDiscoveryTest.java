@@ -1,5 +1,7 @@
 package com.zoomphant.agent.trace.common;
 
+import com.zoomphant.agent.trace.common.minimal.ContainerDiscovery;
+
 import java.util.HashMap;
 import java.util.Map;
 
@@ -9,7 +11,7 @@ public class ContainerDiscoveryTest {
         adMap.put(ContainerDiscovery.ProcessTypeLabel.kafka_clusterid, "abc");
         adMap.put(ContainerDiscovery.ProcessTypeLabel.kafka_brokerid, "efg");
         ContainerDiscovery containerDiscovery = new ContainerDiscovery();
-        containerDiscovery.source = "hello";
+        containerDiscovery.setSource("hello");
         containerDiscovery.getProcessTypeMap().put(ContainerDiscovery.ProcessType.KAFKA, adMap);
     }
 }

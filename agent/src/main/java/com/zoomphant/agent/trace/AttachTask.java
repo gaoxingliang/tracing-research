@@ -1,7 +1,7 @@
 package com.zoomphant.agent.trace;
 
-import com.zoomphant.agent.trace.common.VMUtil;
 import com.zoomphant.agent.trace.common.minimal.TraceLog;
+import com.zoomphant.agent.trace.common.minimal.utils.VMUtil;
 
 public class AttachTask implements Runnable {
 

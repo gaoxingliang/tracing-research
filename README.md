@@ -1,4 +1,18 @@
 # tracing-research
+Project structure:
+- spy (used in bootstrap. no need to change anymore.)
+- common-minimal (used in bootstrap. which will be load into the remote target jvm bootstrap classloader)
+- bootstrap (loading another classloader)
+- common (additional stuff shared between agents)  
+- dummy (a test loader class. ignore it)
+- agent (exported to the zp collector.)
+
+and different kinds of agents:
+- jmx-base (provided base class for jvm style agents which want to scrape jmx metrics)
+- sql-trace (scrape the jdbc stuff when a jvm using jdbc)
+- kafka-trace (scrape the Kafka broker processes based on jmx-base)
+- kafka-java (scrape when a jvm using kafka library)
+- http-java (scrape when a jvm using http)
 
 # for each trace object named - xxx-trace
 run the `gralde build` to generate the jar and will auto copy into folder releaselibs.<br>

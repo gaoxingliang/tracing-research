@@ -1,0 +1,18 @@
+plugins {
+    id 'java'
+}
+
+group 'com.zoomphant.agent.trace'
+version '0.0.1'
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    compile group: 'io.prometheus.jmx', name: 'jmx_prometheus_javaagent', version: '0.15.0'
+    compile project(":common-minimal")
+}
+
+test {
+}

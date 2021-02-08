@@ -1,15 +1,15 @@
 package com.zoomphant.agent.trace.kafka;
 
-import com.zoomphant.agent.trace.common.JMXMain;
-import com.zoomphant.agent.trace.common.JmxUtils;
 import com.zoomphant.agent.trace.common.minimal.ContainerDiscovery;
+import com.zoomphant.agent.trace.jmx.JMXBaseMain;
+import com.zoomphant.agent.trace.jmx.JmxUtils;
 
 import java.lang.instrument.Instrumentation;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class KafkaMain extends JMXMain {
+public class KafkaMain extends JMXBaseMain {
 
     private String clusterId;
     private String brokerId;

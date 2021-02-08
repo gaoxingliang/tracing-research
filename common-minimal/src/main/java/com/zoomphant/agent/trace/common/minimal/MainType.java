@@ -1,4 +1,4 @@
-package com.zoomphant.agent.trace.common;
+package com.zoomphant.agent.trace.common.minimal;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;

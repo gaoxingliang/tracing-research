@@ -1,6 +1,7 @@
 package com.zoomphant.agent.trace.common.minimal;
 
-import lombok.Getter;
+import com.zoomphant.agent.trace.common.minimal.utils.HttpUtils;
+import com.zoomphant.agent.trace.common.minimal.utils.OutputUtils;
 
 import java.io.IOException;
 import java.lang.instrument.Instrumentation;
@@ -10,25 +11,22 @@ import java.util.concurrent.TimeUnit;
 
 public abstract class BasicMain {
 
-
-    @Getter
     protected Recorder recorder;
 
-    @Getter
     protected Map<String, String> options;
 
     protected String chost;
     protected int cport;
     protected String source;
 
-    @Getter
     protected String jarFile;
 
-    @Getter
     protected final Instrumentation inst;
 
-    @Getter
     protected final ClassLoader whoLoadMe;
+
+
+
     public BasicMain(String agentArgs, Instrumentation inst, ClassLoader whoLoadMe) {
         this.inst = inst;
         this.whoLoadMe = whoLoadMe;
@@ -74,4 +72,35 @@ public abstract class BasicMain {
         return null;
     }
 
+    public Recorder getRecorder() {
+        return recorder;
+    }
+
+    public Map<String, String> getOptions() {
+        return options;
+    }
+
+    public String getChost() {
+        return chost;
+    }
+
+    public int getCport() {
+        return cport;
+    }
+
+    public String getSource() {
+        return source;
+    }
+
+    public String getJarFile() {
+        return jarFile;
+    }
+
+    public Instrumentation getInst() {
+        return inst;
+    }
+
+    public ClassLoader getWhoLoadMe() {
+        return whoLoadMe;
+    }
 }

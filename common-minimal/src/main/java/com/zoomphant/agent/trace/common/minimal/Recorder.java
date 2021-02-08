@@ -1,10 +1,8 @@
 package com.zoomphant.agent.trace.common.minimal;
 
-import lombok.Getter;
 
 public class Recorder {
 
-    @Getter
     private String source;
     private final Tracer tracer;
     private final TracerType tracerType;
@@ -46,5 +44,17 @@ public class Recorder {
         }
         span.finish();
         this.tracer.getSpanReporter().finish(span);
+    }
+
+    public String getSource() {
+        return source;
+    }
+
+    public Tracer getTracer() {
+        return tracer;
+    }
+
+    public TracerType getTracerType() {
+        return tracerType;
     }
 }

@@ -4,13 +4,8 @@
 
 allprojects {
     apply plugin: 'idea'
-
     group = 'com.zoomphant.agent.trace'
     version = '0.0.1'
-
-    configurations {
-        apt
-    }
 }
 
 subprojects {
@@ -21,9 +16,6 @@ subprojects {
     }
 
     dependencies {
-        /* lombok */
-        apt("org.projectlombok:lombok:1.18.12")
-        compile 'org.projectlombok:lombok:1.18.12'
     }
 
     sourceCompatibility = JavaVersion.VERSION_1_8
@@ -34,7 +26,6 @@ subprojects {
     }
 
     compileJava {
-        options.annotationProcessorPath = configurations.apt
     }
 
 }

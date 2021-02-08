@@ -1,4 +1,4 @@
-package com.zoomphant.agent.trace.common.minimal;
+package com.zoomphant.agent.trace.common.minimal.utils;
 
 public class StringUtils {
     public static String abbr(String s, int max) {

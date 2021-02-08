@@ -1,9 +1,10 @@
-package com.zoomphant.agent.trace.common;
+package com.zoomphant.agent.trace.jmx;
 
 import com.zoomphant.agent.trace.common.minimal.BasicMain;
-import com.zoomphant.agent.trace.common.minimal.ExceptionUtils;
-import com.zoomphant.agent.trace.common.minimal.HttpUtils;
-import com.zoomphant.agent.trace.common.minimal.StringUtils;
+import com.zoomphant.agent.trace.common.minimal.utils.ExceptionUtils;
+import com.zoomphant.agent.trace.common.minimal.utils.FileUtils;
+import com.zoomphant.agent.trace.common.minimal.utils.HttpUtils;
+import com.zoomphant.agent.trace.common.minimal.utils.StringUtils;
 import com.zoomphant.agent.trace.common.minimal.TraceLog;
 import com.zoomphant.agent.trace.common.minimal.TraceOption;
 import com.zoomphant.agent.trace.common.minimal.TracerType;
@@ -19,7 +20,7 @@ import java.util.Map;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
-public abstract class JMXMain extends BasicMain {
+public abstract class JMXBaseMain extends BasicMain {
     protected String prometheusReportedTo;
 
     /**
@@ -27,7 +28,7 @@ public abstract class JMXMain extends BasicMain {
      **/
     protected Map<String, String> reportingHeaders;
 
-    public JMXMain(String agentArgs, Instrumentation inst, ClassLoader cl) {
+    public JMXBaseMain(String agentArgs, Instrumentation inst, ClassLoader cl) {
         super(agentArgs, inst, cl);
     }
 
@@ -72,7 +73,7 @@ public abstract class JMXMain extends BasicMain {
             TraceLog.info("Loaded agent " + filePath);
         }
         catch (Exception e) {
-            TraceLog.warn("Fail to load " + e.getMessage());
+            TraceLog.warn("Fail to load " + ExceptionUtils.fullStack(e));
         }
     }
 

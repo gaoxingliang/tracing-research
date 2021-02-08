@@ -1,4 +1,4 @@
-package com.zoomphant.agent.trace.common;
+package com.zoomphant.agent.trace.jmx;
 
 import javax.management.MBeanServer;
 import javax.management.MBeanServerConnection;

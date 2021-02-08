@@ -2,7 +2,7 @@ package com.zoomphant.agent.trace;
 
 
 import com.zoomphant.agent.trace.checker.ProcInfo;
-import com.zoomphant.agent.trace.common.minimal.StringUtils;
+import com.zoomphant.agent.trace.common.minimal.utils.StringUtils;
 import com.zoomphant.agent.trace.common.minimal.TraceLog;
 import oshi.SystemInfo;
 import oshi.software.os.OperatingSystem;
@@ -23,28 +23,12 @@ public class ProcessUtils {
                     String containerName = DockerUtils.getContainerName(pid);
                     TraceLog.debug(String.format("Found process %d cmd=%s, container=%s", pid,
                             StringUtils.abbr(cmd, 100), containerName));
-                    return ProcInfo.builder().args(Arrays.asList(new String[0])).cmd(cmd).id(pid).containerId(containerName == null ? ""
-                            : containerName).build();
+                    ProcInfo procInfo = new ProcInfo();
+                    procInfo.setArgs(Arrays.asList(new String[0]));
+                    procInfo.setCmd(cmd);
+                    procInfo.setContainerId(containerName == null ? "" : containerName);
+                    procInfo.setId(pid);
+                    return procInfo;
                 }).collect(Collectors.toList());
     }
-//
-//    /**
-//     * This method is using the jdk's imple. but it has a bug
-//     * when the command line is too long, it will not SHOW THE FULL command line.
-//     *
-//     * @return
-//     */
-//    @Deprecated
-//    public static List<ProcInfo> allProcess() {
-//        return ProcessHandle.allProcesses().map(p -> {
-//            long pid = p.pid();
-//            String cmd = p.info().command().orElse("");
-//            String containerName = DockerUtils.getContainerName(pid);
-//            return ProcInfo.builder().args(Arrays.asList(p.info().arguments().orElse(new String[0]))).cmd(cmd).id(pid).containerId(containerName == null ? "" : containerName).build();
-//        }).collect(Collectors.toList());
-//    }
-//
-//    public static void main(String[] args) {
-//        ProcessUtils.allProcess().forEach(r -> System.out.println(r));
-//    }
 }

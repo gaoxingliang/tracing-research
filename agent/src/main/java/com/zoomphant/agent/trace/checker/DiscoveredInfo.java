@@ -1,12 +1,8 @@
 package com.zoomphant.agent.trace.checker;
 
-import lombok.Data;
-import lombok.ToString;
 
 import java.util.Map;
 
-@ToString
-@Data
 public class DiscoveredInfo {
     String type;
     Map<String, Object> props;
@@ -24,4 +20,19 @@ public class DiscoveredInfo {
         return discoveredInfo;
     }
 
+    public String getType() {
+        return type;
+    }
+
+    public void setType(String type) {
+        this.type = type;
+    }
+
+    public Map<String, Object> getProps() {
+        return props;
+    }
+
+    public void setProps(Map<String, Object> props) {
+        this.props = props;
+    }
 }

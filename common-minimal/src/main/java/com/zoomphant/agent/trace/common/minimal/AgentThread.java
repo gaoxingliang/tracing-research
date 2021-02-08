@@ -1,6 +1,4 @@
-package com.zoomphant.agent.trace.common;
-
-import com.zoomphant.agent.trace.common.minimal.TraceLog;
+package com.zoomphant.agent.trace.common.minimal;
 
 public class AgentThread extends Thread{
     private final Runnable r;

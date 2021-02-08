@@ -1,4 +1,4 @@
-package com.zoomphant.agent.trace.sql;
+package com.zoomphant.agent.trace.http;
 
 import com.zoomphant.agent.trace.common.minimal.BasicMain;
 import com.zoomphant.agent.trace.common.minimal.TraceLog;
@@ -8,11 +8,10 @@ import net.bytebuddy.matcher.ElementMatchers;
 import java.lang.instrument.Instrumentation;
 import java.sql.Statement;
 
-public class SqlMain extends BasicMain {
+public class HttpMain extends BasicMain {
 
-
-    public SqlMain(String agentArgs, Instrumentation inst, ClassLoader classLoader) {
-        super(agentArgs, inst, classLoader);
+    public HttpMain(String agentArgs, Instrumentation inst, ClassLoader whoLoadMe) {
+        super(agentArgs, inst, whoLoadMe);
     }
 
     @Override
@@ -29,17 +28,7 @@ public class SqlMain extends BasicMain {
                         // use this to avoid the classes loading problem - https://stackoverflow
                         // .com/questions/60237664/classpath-problems-while-instrumenting-springboot-application
                         .advice(ElementMatchers.namedOneOf("executeQuery", "execute", "executeUpdate").and(ElementMatchers.isPublic()),
-                                ExecuteAdvice.class.getName())).installOn(inst);
-        TraceLog.info("Sql main installed");
+                                GoogleHttpAdvice.class.getName())).installOn(inst);
+        TraceLog.info("Google http main installed");
     }
-
-
-    public static void premain(String agentArgs, Instrumentation inst) {
-        new SqlMain(agentArgs, inst, null);
-    }
-
-    public static void agentmain(String agentArgs, Instrumentation inst) {
-        new SqlMain(agentArgs, inst, null);
-    }
-
 }

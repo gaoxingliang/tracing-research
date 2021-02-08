@@ -2,6 +2,9 @@ package com.zoomphant.agent.trace.common.minimal;
 
 
 
+import com.zoomphant.agent.trace.common.minimal.utils.HttpUtils;
+import com.zoomphant.agent.trace.common.minimal.utils.OutputUtils;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ArrayBlockingQueue;

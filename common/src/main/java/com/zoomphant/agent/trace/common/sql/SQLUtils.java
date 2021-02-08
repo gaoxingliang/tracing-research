@@ -22,7 +22,9 @@ public class SQLUtils {
                 host = sub.substring(0, sub.indexOf("/"));
             }
         }
-        return DbInfo.builder().host(host).build();
+        DbInfo dbInfo = new DbInfo();
+        dbInfo.setHost(host);
+        return dbInfo;
     }
 
     public static void main(String[] args) {

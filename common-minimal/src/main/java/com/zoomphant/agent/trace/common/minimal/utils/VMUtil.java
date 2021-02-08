@@ -1,14 +1,11 @@
-package com.zoomphant.agent.trace.common;
+package com.zoomphant.agent.trace.common.minimal.utils;
 
 import com.sun.tools.attach.VirtualMachine;
-import com.zoomphant.agent.trace.common.minimal.ExceptionUtils;
 import com.zoomphant.agent.trace.common.minimal.TraceLog;
-import lombok.experimental.UtilityClass;
 
-@UtilityClass
 public class VMUtil {
     // Attach a jvm with jar file and options
-    public void attach(String pid, String jarFile, String option) throws Exception {
+    public static void attach(String pid, String jarFile, String option) throws Exception {
 
         VirtualMachine virtualMachine = null;
         try {

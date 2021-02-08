@@ -7,4 +7,7 @@ include 'dummy'
 include 'bootstrap'
 include 'common-minimal'
 include 'spy'
+include 'kafka-java'
+include 'http-java'
+include 'jmx-base'
 

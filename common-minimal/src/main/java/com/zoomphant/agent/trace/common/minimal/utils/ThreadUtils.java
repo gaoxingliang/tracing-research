@@ -1,4 +1,4 @@
-package com.zoomphant.agent.trace.common;
+package com.zoomphant.agent.trace.common.minimal.utils;
 
 import java.util.concurrent.TimeUnit;
 

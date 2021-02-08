@@ -5,10 +5,10 @@ import com.zoomphant.agent.trace.checker.DiscoveredInfo;
 import com.zoomphant.agent.trace.checker.KafkaChecker;
 import com.zoomphant.agent.trace.checker.ProcInfo;
 import com.zoomphant.agent.trace.checker.SQLChecker;
-import com.zoomphant.agent.trace.common.AgentThread;
-import com.zoomphant.agent.trace.common.ThreadUtils;
+import com.zoomphant.agent.trace.common.minimal.AgentThread;
 import com.zoomphant.agent.trace.common.minimal.TraceLog;
 import com.zoomphant.agent.trace.common.minimal.TraceOption;
+import com.zoomphant.agent.trace.common.minimal.utils.ThreadUtils;
 import org.apache.commons.io.FileUtils;
 
 import java.io.File;

@@ -1,5 +1,6 @@
-package com.zoomphant.agent.trace.common;
+package com.zoomphant.agent.trace.jmx;
 
+import com.zoomphant.agent.trace.common.minimal.utils.FileUtils;
 import io.prometheus.jmx.shaded.io.prometheus.jmx.JmxCollector;
 
 public class JmxTest {
