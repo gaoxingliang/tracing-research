@@ -1,3 +1,5 @@
+[TOC]
+
 # tracing-research
 Project structure:
 - spy (used in bootstrap. no need to change anymore.)
@@ -14,11 +16,15 @@ and different kinds of agents:
 - kafka-java (scrape when a jvm using kafka library)
 - http-java (scrape when a jvm using http)
 
-# for each trace object named - xxx-trace
+# for each trace agents
 run the `gralde build` to generate the jar and will auto copy into folder releaselibs.<br>
 For now there are two main types of tracers:
 - jmx supported. We scraped all metrics and reported to remote client as prometheus metrics.
 - only bytebuddy agents.  based on tracer and reported to remote client (as zipkin data).
+if u are using the bytebuddy's advice, you have to know:
+  - in your advice, **DO NOT IMPORT** anything except packages in the [minimal packages](common-minimal)
+  - a complex example with dynamic value is [ProduceAdvice](kafka-java/src/main/java/com/zoomphant/agent/trace/kafkajava/ProduceAdvice.java)  
+
 
 ## kafka trace
 Now it scraped the full jmx beans of a kafka process. and reported to central agent. <br> 
@@ -35,3 +41,7 @@ Track the java processes which using the kafka related library.
 run the `gradle build` and now files are under agentlibs. This is used to starts:
 - process list
 - auto instrument possible java processes.
+
+
+# reference
+1. bytebuddy

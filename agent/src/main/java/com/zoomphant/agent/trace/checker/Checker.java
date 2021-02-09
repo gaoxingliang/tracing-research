@@ -27,7 +27,9 @@ public abstract class Checker {
 
     public abstract TracerType supportedTracers();
 
-    protected abstract Map<String, String> _options();
+    protected Map<String, String> _options() {
+        return null;
+    }
 
     protected abstract DiscoveredInfo _check(ProcInfo procInfo);
 }

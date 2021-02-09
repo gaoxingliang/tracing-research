@@ -41,6 +41,9 @@ public class MemoryBatchReporter implements SpanReporter {
                     spans.add(span);
                 }
                 if (spans.size() >= max || System.currentTimeMillis() - lastReported > reportInterval) {
+                    if (spans.isEmpty()) {
+                        continue;
+                    }
                     // serialize all and report
                     // encoding all spans.
                     ListOfSpans s = new ListOfSpans();

@@ -23,7 +23,7 @@ apply plugin: 'com.github.johnrengelman.shadow'
 
 
 dependencies {
-    compile fileTree(dir: '../tools', include: ['*.jar'])
+   // compile fileTree(dir: '../tools', include: ['*.jar'])
 
     testCompile group: 'junit', name: 'junit', version: '4.12'
 }
@@ -41,6 +41,7 @@ jar {
     from {
         configurations.compile.collect { it.isDirectory() ? it : zipTree(it) }
     }
+
 }
 
 shadowJar {
@@ -48,7 +49,7 @@ shadowJar {
         inheritFrom project.tasks.jar.manifest
     }
 
-    exclude "tools.jar"
+    // exclude "tools.jar"
 }
 
 task copyToUpperLibs(type: Copy) {

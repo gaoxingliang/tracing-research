@@ -25,8 +25,6 @@ public abstract class BasicMain {
 
     protected final ClassLoader whoLoadMe;
 
-
-
     public BasicMain(String agentArgs, Instrumentation inst, ClassLoader whoLoadMe) {
         this.inst = inst;
         this.whoLoadMe = whoLoadMe;
@@ -103,4 +101,6 @@ public abstract class BasicMain {
     public ClassLoader getWhoLoadMe() {
         return whoLoadMe;
     }
+
+
 }

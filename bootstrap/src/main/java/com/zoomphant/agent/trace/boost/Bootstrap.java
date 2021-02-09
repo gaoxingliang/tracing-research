@@ -5,6 +5,7 @@ import com.zoomphant.agent.trace.common.minimal.MainHolders;
 import com.zoomphant.agent.trace.common.minimal.TraceLog;
 import com.zoomphant.agent.trace.common.minimal.TraceOption;
 import com.zoomphant.agent.trace.common.minimal.TracerType;
+import com.zoomphant.agent.trace.common.minimal.utils.StringUtils;
 
 import java.io.File;
 import java.lang.instrument.Instrumentation;
@@ -54,9 +55,21 @@ public class Bootstrap {
                 TraceLog.info("The class already register " + agentClass);
                 return;
             }
+
+            String requiredClass = r.getRequiredClass();
+            ClassLoader requiredClassLoader = null;
+            if (!StringUtils.isEmpty(requiredClass)) {
+                // try to check whether the classloader is already loaded this class
+                requiredClassLoader = getClassloaderOfClass(instrumentation, requiredClass);
+                if (requiredClassLoader == null) {
+                    TraceLog.info("Not install " + agentClass + " because of require class not loaded" + requiredClass);
+                    return;
+                }
+            }
+
             // apply the bootstrap jar
             instrumentation.appendToBootstrapClassLoaderSearch(new JarFile(new File(TraceOption.getOption(options, TraceOption.BOOTSTRAP_JAR))));
-            StandaloneAgentClassloader arthasClassLoader = new StandaloneAgentClassloader(new URL[] {new File(agentFile).toURL()}, parent);
+            StandaloneAgentClassloader arthasClassLoader = new StandaloneAgentClassloader(new URL[] {new File(agentFile).toURL()}, requiredClassLoader);
             arthasClassLoader.loadClass(agentClass);
             Class c = arthasClassLoader.loadClass(agentClass);
             Constructor con = c.getConstructor(String.class, Instrumentation.class, ClassLoader.class);
@@ -69,5 +82,26 @@ public class Bootstrap {
             TraceLog.error("Error when loading " + agentClass, e);
         }
 
+    }
+
+
+    private static ClassLoader getClassloaderOfClass(Instrumentation instrumentation, String className) {
+        try {
+            Class [] classes = instrumentation.getAllLoadedClasses();
+            for (Class c : classes) {
+                try {
+                    // starts is okay for some internal classes like org.apache.kafka.Kafka.$Abc
+                    if (c.getCanonicalName().startsWith(className)) {
+                        ClassLoader cl =  c.getClassLoader();
+                        TraceLog.info(String.format("Found the require class %s is loaded by %s", className, cl));
+                        return cl;
+                    }
+                } catch (Exception e) {
+                }
+            }
+            return null;
+        } catch (Exception e) {
+            return null;
+        }
     }
 }

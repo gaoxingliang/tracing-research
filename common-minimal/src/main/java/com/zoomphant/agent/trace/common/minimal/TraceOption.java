@@ -16,7 +16,6 @@ public class TraceOption {
     public static final String BOOTSTRAP_JAR = "_bootstrap_jar";
     public static final String SPY_JAR = "_spy_jar";
 
-
     public static final String REPORTING_HEADER_PREFIX = "__r_";
 
     public static Map<String, String> buildReportingHeaders(Map<String, String> map) {
