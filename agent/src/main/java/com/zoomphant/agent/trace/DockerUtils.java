@@ -19,18 +19,23 @@ public class DockerUtils {
          * 10:blkio:/kubepods.slice/kubepods-besteffort.slice/kubepods-besteffort-podf9f89fd9_f49f_4cbe_b04b_cae5c9043de2
          * 0::/kubepods.slice/kubepods-besteffort.slice/kubepods-besteffort-podf9f89fd9_f49f_4cbe_b04b_cae5c9043de2
          * .slice/docker-6f80e1af790e2290283e473b56cc6e5d9d113d135e39416822ec4af6fd5fd72d.scope
+         *
+         *
+         * 12:pids:/kubepods/besteffort/pode8b3fd01-bdfb-4a8b-9992-d34d064a68a2
+         * /7af11114ce560eca928c37b8f3e49f94d7c4f940beef5403ff48685d5354a16f
+         * 11:freezer:/kubepods/besteffort/pode8b3fd01-bdfb-4a8b-9992-d34d064a68a2
+         * /7af11114ce560eca928c37b8f3e49f94d7c4f940beef5403ff48685d5354a16f
+         *
+         *
          */
         try {
-            Optional<String> l = Files.readAllLines(new File(String.format("/proc/%d/cgroup", pid)).toPath()).stream().filter(r -> r.contains("docker-"))
+            Optional<String> l = Files.readAllLines(new File(String.format("/proc/%d/cgroup", pid)).toPath()).stream()
+                    .filter(r -> grep(r) != null)
                     .findFirst();
-            if (l.isPresent()) {
-                String line = l.get();
-                return grep(line);
-            }
+            return l.orElse(null);
         } catch (Exception e) {
             return null;
         }
-        return null;
     }
 
     public static final String grep(String line) {
@@ -44,5 +49,6 @@ public class DockerUtils {
 
     public static void main(String[] args) {
         System.out.println(DockerUtils.grep(".slice/docker-6f80e1af790e2290283e473b56cc6e5d9d113d135e39416822ec4af6fd5fd72d.scope"));
+        System.out.println(DockerUtils.grep("12:pids:/kubepods/besteffort/pode8b3fd01-bdfb-4a8b-9992-d34d064a68a2/7af11114ce560eca928c37b8f3e49f94d7c4f940beef5403ff48685d5354a16f"));
     }
 }
