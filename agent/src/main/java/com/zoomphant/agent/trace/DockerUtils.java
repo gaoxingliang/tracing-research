@@ -2,6 +2,7 @@ package com.zoomphant.agent.trace;
 
 import java.io.File;
 import java.nio.file.Files;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -30,7 +31,7 @@ public class DockerUtils {
          */
         try {
             Optional<String> l = Files.readAllLines(new File(String.format("/proc/%d/cgroup", pid)).toPath()).stream()
-                    .filter(r -> grep(r) != null)
+                    .map(r -> grep(r)).filter(Objects::nonNull)
                     .findFirst();
             return l.orElse(null);
         } catch (Exception e) {
