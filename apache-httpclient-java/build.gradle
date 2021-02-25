@@ -1,0 +1,68 @@
+buildscript {
+    repositories {
+        jcenter()
+    }
+    dependencies {
+        // classpath 'com.github.jengelman.gradle.plugins:shadow:2.0.1'
+    }
+}
+
+plugins {
+    id 'java'
+    id "com.github.johnrengelman.shadow" version "5.0.0"
+}
+version '0.0.1'
+
+repositories {
+    mavenCentral()
+}
+
+
+apply plugin: 'java'
+apply plugin: 'com.github.johnrengelman.shadow'
+
+
+
+dependencies {
+    compile project(":common")
+    testCompile group: 'junit', name: 'junit', version: '4.12'
+    compile ("org.apache.httpcomponents:httpclient:4.5.7") { transitive = false }
+    compile ("org.apache.httpcomponents:httpcore:4.4.14") {transitive = false}
+}
+
+jar {
+    manifest {
+        attributes "Agent-Class": "com.zoomphant.agent.trace.kafka.KafkaMain"
+        attributes "Premain-Class": "com.zoomphant.agent.trace.kafka.KafkaMain"
+        attributes "Can-Redefine-Classes": "true"
+        attributes "Can-Retransform-Classes": "true"
+    }
+
+    from {
+        configurations.compile.collect { it.isDirectory() ? it : zipTree(it) }
+    }
+}
+
+shadowJar {
+    dependencies {
+        exclude(dependency('org.apache.httpcomponents:.*:.*'))
+    }
+
+    manifest {
+        inheritFrom project.tasks.jar.manifest
+    }
+    // bytebuddy win32 dll. no need
+    exclude('/win32-x86/attach_hotspot_windows.dll')
+    exclude('win32-x86-64/attach_hotspot_windows.dll')
+}
+
+task copyToUpperLibs(type: Copy) {
+    from file("build/libs/")
+    into getRootProject().getProjectDir().getAbsolutePath() + "/releaselibs"
+}
+
+task build(overwrite: true) {
+    dependsOn = ['clean', 'shadowJar', 'copyToUpperLibs']
+    shadowJar.mustRunAfter clean
+    copyToUpperLibs.mustRunAfter shadowJar
+}

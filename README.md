@@ -15,6 +15,7 @@ and different kinds of agents:
 - kafka-trace (scrape the Kafka broker processes based on jmx-base)
 - kafka-java (scrape when a jvm using kafka library)
 - http-java (scrape when a jvm using http)
+- apache-httpclient-java (when a jvm using apache httpclient 4.x)
 
 # for each trace agents
 run the `gralde build` to generate the jar and will auto copy into folder releaselibs.<br>

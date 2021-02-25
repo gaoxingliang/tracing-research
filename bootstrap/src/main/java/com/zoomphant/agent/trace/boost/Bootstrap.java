@@ -96,7 +96,7 @@ public class Bootstrap {
                         TraceLog.info(String.format("Found the require class %s is loaded by %s", className, cl));
                         return cl;
                     }
-                } catch (Exception e) {
+                } catch (Throwable e) {
                 }
             }
             return null;

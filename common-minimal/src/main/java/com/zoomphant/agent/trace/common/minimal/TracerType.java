@@ -15,7 +15,14 @@ public enum TracerType {
      * jvm which using kafka clients
      */
     KAFKA_JAVA("kafkajava", "kafka-java-0.0.1-all.jar", "com.zoomphant.agent.trace.kafkajava.KafkaJavaMain",
-            "org.apache.kafka.clients.producer.KafkaProducer");
+            "org.apache.kafka.clients.producer.KafkaProducer"),
+
+    /**
+     * jvm which using apache httpclients (not async http clients)
+     */
+    APACHE_HTTPCLIENT_JAVA("apachehttpclient_java", "apache-httpclient-java-0.0.1-all.jar", "com.zoomphant.agent.trace.apache.httpclient.HttpMain",
+            "org.apache.http.client.HttpClient");
+
 
     private String name;
 

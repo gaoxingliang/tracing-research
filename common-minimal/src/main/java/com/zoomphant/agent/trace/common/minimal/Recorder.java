@@ -46,6 +46,12 @@ public class Recorder {
         this.tracer.getSpanReporter().finish(span);
     }
 
+    public void recordFinish(Span span, boolean suc) {
+        span.tag("_state", suc ? "suc" : "fail");
+        span.finish();
+        this.tracer.getSpanReporter().finish(span);
+    }
+
     public String getSource() {
         return source;
     }

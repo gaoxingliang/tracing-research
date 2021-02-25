@@ -25,7 +25,7 @@ public class ExecuteAdvice {
                     args == null || args.length == 0 ? "" : String.valueOf(args[0]));
         }
         catch (Throwable throwables) {
-            TraceLog.error("Fail ed", throwables);
+            TraceLog.error("Fail to intercept sql", throwables);
             return null;
         }
 
