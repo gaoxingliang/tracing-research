@@ -14,6 +14,7 @@ public class TraceOption {
     public static final String TRACER_TYPE = "_tracer";
     public static final String JARFILE = "_jar"; // the agent jar
     public static final String BOOTSTRAP_JAR = "_bootstrap_jar";
+    public static final String BYTE_BUDDY_SHARE_JAR = "_bytebuddy_jar";
     public static final String SPY_JAR = "_spy_jar";
 
     public static final String REPORTING_HEADER_PREFIX = "__r_";

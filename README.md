@@ -8,6 +8,7 @@ Project structure:
 - common (additional stuff shared between agents)  
 - dummy (a test loader class. ignore it)
 - agent (exported to the zp collector.)
+- bytebuddy (a bytebuddy share jar to avoid too large advices files. by this way, a normal advice jar file is about 30kb.)
 
 and different kinds of agents:
 - jmx-base (provided base class for jvm style agents which want to scrape jmx metrics)

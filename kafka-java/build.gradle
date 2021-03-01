@@ -25,7 +25,8 @@ apply plugin: 'com.github.johnrengelman.shadow'
 
 dependencies {
     compile project(":common")
-    compile ("org.apache.kafka:kafka-clients:2.6.0") { transitive = false }
+    compileOnly project(":bytebuddy")
+    compileOnly ("org.apache.kafka:kafka-clients:2.6.0") { transitive = false }
     testCompile group: 'junit', name: 'junit', version: '4.12'
 }
 
@@ -43,17 +44,9 @@ jar {
 }
 
 shadowJar {
-    dependencies {
-        exclude(dependency('org.apache.kafka:kafka-clients:.*'))
-    }
-
     manifest {
         inheritFrom project.tasks.jar.manifest
     }
-
-    // bytebuddy win32 dll. no need
-    exclude('/win32-x86/attach_hotspot_windows.dll')
-    exclude('win32-x86-64/attach_hotspot_windows.dll')
 }
 
 task copyToUpperLibs(type: Copy) {

@@ -11,4 +11,5 @@ include 'kafka-java'
 include 'http-java'
 include 'jmx-base'
 include 'apache-httpclient-java'
+include 'bytebuddy'
 

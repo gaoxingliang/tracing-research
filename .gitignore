@@ -29,3 +29,4 @@ releaselibs/*.jar
 /.gradle/
 /releaselibs/sql-trace-0.0.1-all/
 /sql-trace/build/tmp/
+/bytebuddy/build/

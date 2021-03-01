@@ -25,9 +25,10 @@ apply plugin: 'com.github.johnrengelman.shadow'
 
 dependencies {
     compile project(":common")
+    compileOnly project(":bytebuddy")
     testCompile group: 'junit', name: 'junit', version: '4.12'
-    compile ("org.apache.httpcomponents:httpclient:4.5.7") { transitive = false }
-    compile ("org.apache.httpcomponents:httpcore:4.4.14") {transitive = false}
+    compileOnly ("org.apache.httpcomponents:httpclient:4.5.7") { transitive = false }
+    compileOnly ("org.apache.httpcomponents:httpcore:4.4.14") {transitive = false}
 }
 
 jar {
@@ -44,16 +45,9 @@ jar {
 }
 
 shadowJar {
-    dependencies {
-        exclude(dependency('org.apache.httpcomponents:.*:.*'))
-    }
-
     manifest {
         inheritFrom project.tasks.jar.manifest
     }
-    // bytebuddy win32 dll. no need
-    exclude('/win32-x86/attach_hotspot_windows.dll')
-    exclude('win32-x86-64/attach_hotspot_windows.dll')
 }
 
 task copyToUpperLibs(type: Copy) {

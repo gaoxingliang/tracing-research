@@ -25,6 +25,7 @@ apply plugin: 'com.github.johnrengelman.shadow'
 
 dependencies {
     compile project(":common")
+    compileOnly project(":bytebuddy")
     testCompile group: 'junit', name: 'junit', version: '4.12'
 }
 
@@ -42,9 +43,6 @@ jar {
 }
 
 shadowJar {
-    // bytebuddy win32 dll. no need
-    exclude('/win32-x86/attach_hotspot_windows.dll')
-    exclude('win32-x86-64/attach_hotspot_windows.dll')
     manifest {
         inheritFrom project.tasks.jar.manifest
     }

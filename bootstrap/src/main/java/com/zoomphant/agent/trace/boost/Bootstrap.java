@@ -69,7 +69,9 @@ public class Bootstrap {
 
             // apply the bootstrap jar
             instrumentation.appendToBootstrapClassLoaderSearch(new JarFile(new File(TraceOption.getOption(options, TraceOption.BOOTSTRAP_JAR))));
-            StandaloneAgentClassloader arthasClassLoader = new StandaloneAgentClassloader(new URL[] {new File(agentFile).toURL()}, requiredClassLoader);
+            StandaloneAgentClassloader arthasClassLoader = new StandaloneAgentClassloader(new URL[] {
+                    new File(TraceOption.getOption(options, TraceOption.BYTE_BUDDY_SHARE_JAR)).toURL(),
+                    new File(agentFile).toURL()}, requiredClassLoader);
             arthasClassLoader.loadClass(agentClass);
             Class c = arthasClassLoader.loadClass(agentClass);
             Constructor con = c.getConstructor(String.class, Instrumentation.class, ClassLoader.class);

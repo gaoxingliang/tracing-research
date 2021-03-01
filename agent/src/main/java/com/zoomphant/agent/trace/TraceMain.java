@@ -13,6 +13,8 @@ import org.apache.commons.io.FileUtils;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
+import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -32,6 +34,8 @@ public class TraceMain {
 
     public static final String BOOTSTRAP_JAR = "bootstrap-0.0.1-all.jar";
     public static final String SPY_JAR = "spy-0.0.1-all.jar";
+    public static final String BYTEBUDDY_SHARE_JAR = "bytebuddy-0.0.1-all.jar";
+
 
     public static Set<String> alreadyEnabledChecker = new ConcurrentSkipListSet<>();
     public static Set<Long> alreadyAttachedProcces = new ConcurrentSkipListSet<>();
@@ -83,7 +87,11 @@ public class TraceMain {
                                     String agentJarFinalPath = new File(libsFolder, checker.supportedTracers().getJar()).getCanonicalPath();
                                     String bootstrapFinalPath = new File(libsFolder, BOOTSTRAP_JAR).getCanonicalPath();
                                     String spyFinalPath = new File(libsFolder, SPY_JAR).getCanonicalPath();
-                                    String [] agentBootstrapSpy = new String[] {checker.supportedTracers().getJar(), BOOTSTRAP_JAR, SPY_JAR};
+                                    String bytebuddyJarFinalPath = new File(libsFolder, BYTEBUDDY_SHARE_JAR).getCanonicalPath();
+                                    String [] agentBootstrapSpy = new String[] {
+                                            checker.supportedTracers().getJar(),
+                                            BOOTSTRAP_JAR,
+                                            SPY_JAR, BYTEBUDDY_SHARE_JAR};
 
                                     // it's it's a docker process
                                     if (p.getContainerId() != null) {
@@ -100,6 +108,7 @@ public class TraceMain {
                                             agentJarFinalPath = "/tmp/zpdir/" + agentBootstrapSpy[0];
                                             bootstrapFinalPath = "/tmp/zpdir/" + agentBootstrapSpy[1];
                                             spyFinalPath = "/tmp/zpdir/" + agentBootstrapSpy[2];
+                                            bytebuddyJarFinalPath = "/tmp/zpdir/" + agentBootstrapSpy[3];
                                             TraceLog.info("Copied all files to remote " + rootDir);
                                         }
                                         else {
@@ -117,6 +126,7 @@ public class TraceMain {
                                     options.put(TraceOption.JARFILE, agentJarFinalPath);
                                     options.put(TraceOption.BOOTSTRAP_JAR, bootstrapFinalPath);
                                     options.put(TraceOption.SPY_JAR, spyFinalPath);
+                                    options.put(TraceOption.BYTE_BUDDY_SHARE_JAR, bytebuddyJarFinalPath);
                                     options.put(TraceOption.TRACER_TYPE, checker.supportedTracers().name());
                                     options.putAll(TraceOption.buildReportingHeaders(reportingProps));
                                     Thread th = new Thread(new AttachTask(p.getId(), bootstrapFinalPath, TraceOption.renderOptions(options)));
@@ -142,7 +152,27 @@ public class TraceMain {
 
 
     private static void copyFileFromHost2Docker(String sourceDirInHost, String targetDirInDocker, String fileName) throws IOException {
-        FileUtils.copyFile(new File(sourceDirInHost, fileName), new File(targetDirInDocker, fileName));
+        // make sure the md5 is different
+        // and then we copy
+        File target = new File(targetDirInDocker, fileName);
+        File src = new File(sourceDirInHost, fileName);
+        if (target.exists()) {
+            try {
+                String md5Exists = "", md5New = "";
+                try (InputStream is = Files.newInputStream(target.toPath())) {
+                    md5Exists = org.apache.commons.codec.digest.DigestUtils.md5Hex(is);
+                }
+                try (InputStream is = Files.newInputStream(src.toPath())) {
+                    md5New = org.apache.commons.codec.digest.DigestUtils.md5Hex(is);
+                }
+                if (md5Exists.equals(md5New)) {
+                    TraceLog.info("same file, ignored " + fileName);
+                }
+            } catch(Exception e) {
+            }
+        }
+
+        FileUtils.copyFile(src, target);
     }
 
     public static void main(String[] args) throws InterruptedException {
