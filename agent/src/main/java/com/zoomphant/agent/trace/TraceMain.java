@@ -74,7 +74,7 @@ public class TraceMain {
                             // for each process collect the informations...
                             for (ProcInfo p : procInfoList) {
                                 ConcurrentSkipListSet enabled = alreadyAttachedProcces.computeIfAbsent(p.getId(), k -> new ConcurrentSkipListSet<>());
-                                if (enabled.contains(alreadyEnabledChecker)) {
+                                if (enabled.contains(tracerName)) {
                                     continue;
                                 }
                                 if (testCmd != null && !p.getCmd().contains(testCmd)) {
@@ -134,7 +134,7 @@ public class TraceMain {
                                     options.putAll(TraceOption.buildReportingHeaders(reportingProps));
                                     Thread th = new Thread(new AttachTask(p.getId(), bootstrapFinalPath, TraceOption.renderOptions(options)));
                                     th.start();
-                                    enabled.add(alreadyEnabledChecker);
+                                    enabled.add(tracerName);
                                 }
                             }
                         }

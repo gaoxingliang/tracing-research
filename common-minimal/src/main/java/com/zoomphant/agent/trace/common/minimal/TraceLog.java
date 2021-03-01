@@ -8,19 +8,19 @@ import java.util.Date;
 public class TraceLog {
 
     public static void debug(String msg) {
-        System.out.println(new Date() + " TRACE :" + msg);
+        System.out.println(new Date() + Thread.currentThread().getName() + " TRACE :" + msg);
     }
 
     public static void info(String msg) {
-        System.out.println(new Date() +" TRACE :" + msg);
+        System.out.println(new Date() + Thread.currentThread().getName() + " TRACE :" + msg);
     }
     public static void warn(String msg) {
-        System.out.println(new Date() +" TRACE :" + msg);
+        System.out.println(new Date() + Thread.currentThread().getName() + " TRACE :" + msg);
     }
 
 
     public static void error(String msg, Throwable e) {
-        System.out.println(new Date() +" TRACE : Found error: " + msg + " "+ getStackTrace(e));
+        System.out.println(new Date() + Thread.currentThread().getName() + " TRACE : Found error: " + msg + " "+ getStackTrace(e));
         // e.printStackTrace();
 
 //        LogRecord lr = new LogRecord(Level.SEVERE, msg);
