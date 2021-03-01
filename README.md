@@ -12,7 +12,7 @@ Project structure:
 
 and different kinds of agents:
 - jmx-base (provided base class for jvm style agents which want to scrape jmx metrics)
-- sql-trace (scrape the jdbc stuff when a jvm using jdbc)
+- sql-java (scrape the jdbc stuff when a jvm using jdbc)
 - kafka-trace (scrape the Kafka broker processes based on jmx-base)
 - kafka-java (scrape when a jvm using kafka library)
 - http-java (scrape when a jvm using http)
@@ -20,6 +20,11 @@ and different kinds of agents:
 
 # for each trace agents
 run the `gralde build` to generate the jar and will auto copy into folder releaselibs.<br>
+
+## naming rules
+for each trace agents: named: "xxxx-java" indicates the jvm which using xxxx. and "xxxx-trace" is the host jvm (eg kafka-trace indicates the kafka broker jvm)
+
+
 For now there are two main types of tracers:
 - jmx supported. We scraped all metrics and reported to remote client as prometheus metrics.
 - only bytebuddy agents.  based on tracer and reported to remote client (as zipkin data).

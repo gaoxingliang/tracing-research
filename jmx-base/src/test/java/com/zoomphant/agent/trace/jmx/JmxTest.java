@@ -6,7 +6,7 @@ import io.prometheus.jmx.shaded.io.prometheus.jmx.JmxCollector;
 public class JmxTest {
     public static void main(String[] args) throws Exception {
         String filePath = "kafka2_0_JMX.yaml";
-        String fileContent = FileUtils.getFile(filePath);
+        String fileContent = FileUtils.getFile(JmxTest.class.getClassLoader(), filePath);
         String body = "jmxUrl: service:jmx:rmi:///jndi/rmi://:9999/jmxrmi\n" + fileContent;
 
 

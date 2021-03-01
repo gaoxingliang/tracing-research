@@ -18,13 +18,13 @@ public class ExampleTraceSQL {
 
         long pid = 7464;
         //            /Users/edward/projects/forked/tracing-research/sql-trace/build/libs/sql-trace-0.0.1-all.jar
-        String jar = new File("./releaselibs/sql-trace-0.0.1-all.jar").getCanonicalPath();
+        String jar = new File("./releaselibs/sql-java-0.0.1-all.jar").getCanonicalPath();
         Map<String, String> options = new HashMap<>();
         options.put(TraceOption.CENTRALHOST, "127.0.0.1");
         options.put(TraceOption.CENTRALPORT, "9411");
         options.put(TraceOption.CONTAINER, "MOCKED");
         options.put(TraceOption.JARFILE, jar);
-        options.put(TraceOption.TRACER_TYPE, TracerType.SQL.name());
+        options.put(TraceOption.TRACER_TYPE, TracerType.SQL_JAVA.name());
         String boostjar = new File("./releaselibs/" + TraceMain.BOOTSTRAP_JAR).getCanonicalPath();
 
         Thread th = new Thread(new AttachTask(pid, jar, TraceOption.renderOptions(options)));

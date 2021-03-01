@@ -22,6 +22,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentSkipListSet;
 
 public class TraceMain {
@@ -38,7 +39,7 @@ public class TraceMain {
 
 
     public static Set<String> alreadyEnabledChecker = new ConcurrentSkipListSet<>();
-    public static Set<Long> alreadyAttachedProcces = new ConcurrentSkipListSet<>();
+    public static Map<Long /*pid*/, ConcurrentSkipListSet<String/*checker tracer  name*/>> alreadyAttachedProcces = new ConcurrentHashMap<>();
     /**
      * It will use below envs:
      * _ZP_ENV_NODE  : k8s108
@@ -54,7 +55,8 @@ public class TraceMain {
             if (alreadyEnabledChecker.contains(checker.supportedTracers().getName())) {
                 return false;
             }
-            alreadyEnabledChecker.add(checker.supportedTracers().getName());
+            final String tracerName = checker.supportedTracers().getName();
+            alreadyEnabledChecker.add(tracerName);
 
             new AgentThread("trace-main", new Runnable() {
                 @Override
@@ -71,7 +73,8 @@ public class TraceMain {
                             List<ProcInfo> procInfoList = ProcessUtils.allProcess2();
                             // for each process collect the informations...
                             for (ProcInfo p : procInfoList) {
-                                if (alreadyAttachedProcces.contains(p.getId())) {
+                                ConcurrentSkipListSet enabled = alreadyAttachedProcces.computeIfAbsent(p.getId(), k -> new ConcurrentSkipListSet<>());
+                                if (enabled.contains(alreadyEnabledChecker)) {
                                     continue;
                                 }
                                 if (testCmd != null && !p.getCmd().contains(testCmd)) {
@@ -131,7 +134,7 @@ public class TraceMain {
                                     options.putAll(TraceOption.buildReportingHeaders(reportingProps));
                                     Thread th = new Thread(new AttachTask(p.getId(), bootstrapFinalPath, TraceOption.renderOptions(options)));
                                     th.start();
-                                    alreadyAttachedProcces.add(p.getId());
+                                    enabled.add(alreadyEnabledChecker);
                                 }
                             }
                         }

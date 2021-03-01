@@ -14,6 +14,6 @@ public class KafkaChecker extends JavaChecker{
 
     @Override
     public TracerType supportedTracers() {
-        return TracerType.KAFKA_JMX;
+        return TracerType.KAFKA_TRACE;
     }
 }

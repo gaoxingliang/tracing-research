@@ -48,6 +48,8 @@ public class Bootstrap {
             if (spyClass == null) {
                 File spyJarFile = new File(TraceOption.getOption(options, TraceOption.SPY_JAR));
                 instrumentation.appendToBootstrapClassLoaderSearch(new JarFile(spyJarFile));
+                // only add once....
+                instrumentation.appendToBootstrapClassLoaderSearch(new JarFile(new File(TraceOption.getOption(options, TraceOption.BOOTSTRAP_JAR))));
                 spyClass = parent.loadClass(SPY_CLASS);
             }
             boolean success = (boolean) spyClass.getMethod("initIfNotExists", String.class).invoke(null, agentClass);
@@ -59,7 +61,7 @@ public class Bootstrap {
             String requiredClass = r.getRequiredClass();
             ClassLoader requiredClassLoader = null;
             if (!StringUtils.isEmpty(requiredClass)) {
-                // try to check whether the classloader is already loaded this class
+                // try to check whether Filethe classloader is already loaded this class
                 requiredClassLoader = getClassloaderOfClass(instrumentation, requiredClass);
                 if (requiredClassLoader == null) {
                     TraceLog.info("Not install " + agentClass + " because of require class not loaded" + requiredClass);
@@ -68,7 +70,6 @@ public class Bootstrap {
             }
 
             // apply the bootstrap jar
-            instrumentation.appendToBootstrapClassLoaderSearch(new JarFile(new File(TraceOption.getOption(options, TraceOption.BOOTSTRAP_JAR))));
             StandaloneAgentClassloader arthasClassLoader = new StandaloneAgentClassloader(new URL[] {
                     new File(TraceOption.getOption(options, TraceOption.BYTE_BUDDY_SHARE_JAR)).toURL(),
                     new File(agentFile).toURL()}, requiredClassLoader);

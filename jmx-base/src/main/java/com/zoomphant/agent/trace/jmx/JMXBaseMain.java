@@ -64,7 +64,7 @@ public abstract class JMXBaseMain extends BasicMain {
 
         String fileContent = null;
         try {
-            fileContent = FileUtils.getFile(filePath);
+            fileContent = FileUtils.getFile(JMXBaseMain.class.getClassLoader(), filePath);
             CollectorRegistry registry = new CollectorRegistry(true);
             final JmxCollector jmxCollector = new JmxCollector(fileContent);
             jmxCollector.register(registry);

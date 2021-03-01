@@ -4,12 +4,12 @@ public enum TracerType {
     /**
      * jvm which using jdbc
      */
-    SQL("sql", "sql-trace-0.0.1-all.jar", "com.zoomphant.agent.trace.sql.SqlMain"),
+    SQL_JAVA("sql", "sql-java-0.0.1-all.jar", "com.zoomphant.agent.trace.sql.SqlMain", "java.sql.Statement"),
 
     /**
      * kafka broker jvm
      */
-    KAFKA_JMX("kafkajmx", "kafka-trace-0.0.1-all.jar", "com.zoomphant.agent.trace.kafka.KafkaMain"),
+    KAFKA_TRACE("kafkajmx", "kafka-trace-0.0.1-all.jar", "com.zoomphant.agent.trace.kafka.KafkaMain"),
 
     /**
      * jvm which using kafka clients
