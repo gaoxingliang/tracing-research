@@ -18,6 +18,10 @@ and different kinds of agents:
 - http-java (scrape when a jvm using http)
 - apache-httpclient-java (when a jvm using apache httpclient 4.x)
 
+# build
+`./gradlew build` and check the folder `agentlibs` and `releaselibs`
+
+
 # for each trace agents
 run the `gralde build` to generate the jar and will auto copy into folder releaselibs.<br>
 

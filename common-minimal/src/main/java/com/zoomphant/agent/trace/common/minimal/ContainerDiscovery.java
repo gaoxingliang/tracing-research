@@ -11,6 +11,8 @@ public class ContainerDiscovery implements Serializable {
 
     String source;
 
+    Map<ProcessTypeLabel, String> shareLabels = new HashMap<>(2);
+
     Map<ProcessType, Map<ProcessTypeLabel, String>> processTypeMap = new HashMap<>(2);
 
     public enum ProcessType implements Serializable {
@@ -19,7 +21,11 @@ public class ContainerDiscovery implements Serializable {
 
     public enum ProcessTypeLabel implements Serializable {
         kafka_brokerid,
-        kafka_clusterid
+        kafka_clusterid,
+        container_id,
+        hostname,
+        pid,
+        nodename
     }
 
     public String getSource() {
@@ -36,5 +42,10 @@ public class ContainerDiscovery implements Serializable {
 
     public void setProcessTypeMap(Map<ProcessType, Map<ProcessTypeLabel, String>> processTypeMap) {
         this.processTypeMap = processTypeMap;
+    }
+
+
+    public Map<ProcessTypeLabel, String> getShareLabels() {
+        return shareLabels;
     }
 }

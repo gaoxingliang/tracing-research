@@ -2,6 +2,9 @@ package com.zoomphant.agent.trace.checker;
 
 import com.zoomphant.agent.trace.common.minimal.TracerType;
 
+/**
+ * check kafka broker jvm processes
+ */
 public class KafkaChecker extends JavaChecker{
 
     @Override

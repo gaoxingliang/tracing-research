@@ -5,6 +5,7 @@ import com.zoomphant.agent.trace.common.minimal.utils.OutputUtils;
 
 import java.io.IOException;
 import java.lang.instrument.Instrumentation;
+import java.net.InetAddress;
 import java.util.Map;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
@@ -57,6 +58,10 @@ public abstract class BasicMain {
         if (d != null) {
             try {
                 d.source = source;
+                d.getShareLabels().put(ContainerDiscovery.ProcessTypeLabel.pid, TraceOption.getOption(options, TraceOption.PID));
+                d.getShareLabels().put(ContainerDiscovery.ProcessTypeLabel.container_id, TraceOption.getOption(options, TraceOption.CONTAINER));
+                d.getShareLabels().put(ContainerDiscovery.ProcessTypeLabel.hostname, getHostName());
+                d.getShareLabels().put(ContainerDiscovery.ProcessTypeLabel.nodename, TraceOption.getOption(options, TraceOption.NODENAME));
 
                 HttpUtils.post(String.format("http://%s:%d/api/discover", chost, cport), OutputUtils.toBytes(d), null);
             }
@@ -67,7 +72,7 @@ public abstract class BasicMain {
     }
 
     protected ContainerDiscovery getContainerDiscovery() {
-        return null;
+        return new ContainerDiscovery();
     }
 
     public Recorder getRecorder() {
@@ -103,4 +108,27 @@ public abstract class BasicMain {
     }
 
 
+    private static String getHostNameForLiunx() {
+        try {
+            return (InetAddress.getLocalHost()).getHostName();
+        } catch (Exception uhe) {
+            String host = uhe.getMessage(); // host = "hostname: hostname"
+            if (host != null) {
+                int colon = host.indexOf(':');
+                if (colon > 0) {
+                    return host.substring(0, colon);
+                }
+            }
+            return "UnknownHost";
+        }
+    }
+
+
+    public static String getHostName() {
+        if (System.getenv("COMPUTERNAME") != null) {
+            return System.getenv("COMPUTERNAME") == null ? "UnknownHost" : System.getenv("COMPUTERNAME");
+        } else {
+            return getHostNameForLiunx();
+        }
+    }
 }
