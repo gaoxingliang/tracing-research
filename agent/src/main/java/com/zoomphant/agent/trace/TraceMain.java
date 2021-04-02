@@ -51,6 +51,12 @@ public class TraceMain {
      *
      */
     public static boolean start(final String libsFolder, Checker checker, final Map<String, String> reportingProps) {
+        /**
+         * To avoid problem:
+         *  which may cause problem if we try to attach the zp agent (self attach self.)
+         */
+        long currentProcessId = ProcessUtils.currentProcessId();
+
         synchronized (alreadyEnabledChecker) {
             if (alreadyEnabledChecker.contains(checker.supportedTracers().getName())) {
                 return false;
@@ -73,6 +79,10 @@ public class TraceMain {
                             List<ProcInfo> procInfoList = ProcessUtils.allProcess2();
                             // for each process collect the informations...
                             for (ProcInfo p : procInfoList) {
+                                if (p.getId() == currentProcessId) {
+                                    continue;
+                                }
+
                                 ConcurrentSkipListSet enabled = alreadyAttachedProcces.computeIfAbsent(p.getId(), k -> new ConcurrentSkipListSet<>());
                                 if (enabled.contains(tracerName)) {
                                     continue;

@@ -2,11 +2,13 @@ package com.zoomphant.agent.trace;
 
 
 import com.zoomphant.agent.trace.checker.ProcInfo;
-import com.zoomphant.agent.trace.common.minimal.utils.StringUtils;
 import com.zoomphant.agent.trace.common.minimal.TraceLog;
+import com.zoomphant.agent.trace.common.minimal.utils.StringUtils;
 import oshi.SystemInfo;
 import oshi.software.os.OperatingSystem;
 
+import java.lang.management.ManagementFactory;
+import java.lang.management.RuntimeMXBean;
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -30,5 +32,15 @@ public class ProcessUtils {
                     procInfo.setId(pid);
                     return procInfo;
                 }).collect(Collectors.toList());
+    }
+
+
+    public static long currentProcessId() {
+        RuntimeMXBean runtimeMXBean = ManagementFactory.getRuntimeMXBean();
+        return Integer.valueOf(runtimeMXBean.getName().split("@")[0]).intValue();
+    }
+
+    public static void main(String[] args) {
+        System.out.println(currentProcessId());
     }
 }
