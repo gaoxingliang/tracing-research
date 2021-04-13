@@ -22,6 +22,7 @@ public class ContainerDiscovery implements Serializable {
     public enum ProcessTypeLabel implements Serializable {
         kafka_brokerid,
         kafka_clusterid,
+        kafka_zkurl,
         container_id,
         hostname,
         pid,

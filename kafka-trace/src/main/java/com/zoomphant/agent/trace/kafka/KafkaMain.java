@@ -8,11 +8,13 @@ import java.lang.instrument.Instrumentation;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 public class KafkaMain extends JMXBaseMain {
 
     private String clusterId;
     private String brokerId;
+    private String zkurl;
 
     public KafkaMain(String agentArgs, Instrumentation inst, ClassLoader cl) {
         super(agentArgs, inst, cl);
@@ -39,11 +41,24 @@ public class KafkaMain extends JMXBaseMain {
         List<String> ids = JmxUtils.getNodes("kafka.server:id=*,type=app-info", "id");
         if (!ids.isEmpty()) {
             brokerId = ids.get(0);
-            map.put("kafka_brokerid", ids.get(0));
+            map.put(ContainerDiscovery.ProcessTypeLabel.kafka_brokerid + "", ids.get(0));
         }
         String clusterId = JmxUtils.getValue("kafka.server:type=KafkaServer,name=ClusterId", "Value");
-        map.put("kafka_clusterid", clusterId);
+        map.put(ContainerDiscovery.ProcessTypeLabel.kafka_clusterid + "", clusterId);
         this.clusterId = clusterId;
+
+        /**
+         * hacky way to list out all threads named with
+         * "main-SendThread(localhost:12181)"
+         * This is the kafka used to connect with the zookeeper
+         */
+        Optional<Thread> op = Thread.getAllStackTraces().keySet().stream().filter(th -> th.getName().startsWith("main-SendThread(")).findAny();
+        if (op.isPresent()) {
+            String threadname = op.get().getName();
+            String zkurl = threadname.substring(threadname.indexOf("(") + 1, threadname.length() - 1);
+            this.zkurl = zkurl;
+        }
+
         return map;
     }
 
@@ -56,6 +71,10 @@ public class KafkaMain extends JMXBaseMain {
         if (brokerId != null) {
             adMap.put(ContainerDiscovery.ProcessTypeLabel.kafka_brokerid, brokerId);
         }
+        if (zkurl != null) {
+            adMap.put(ContainerDiscovery.ProcessTypeLabel.kafka_zkurl, zkurl);
+        }
+
         if (adMap.isEmpty()) {
             return null;
         }
