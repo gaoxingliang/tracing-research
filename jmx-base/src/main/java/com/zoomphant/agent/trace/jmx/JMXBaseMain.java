@@ -17,6 +17,7 @@ import java.lang.instrument.Instrumentation;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.Executors;
+import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.TimeUnit;
 
 public abstract class JMXBaseMain extends BasicMain {
@@ -68,21 +69,29 @@ public abstract class JMXBaseMain extends BasicMain {
             final JmxCollector jmxCollector = new JmxCollector(fileContent);
             jmxCollector.register(registry);
             DefaultExports.register(registry);
-            Executors.newSingleThreadScheduledExecutor().scheduleAtFixedRate(() -> collect(registry), 10, 60, TimeUnit.SECONDS);
-            TraceLog.info("Loaded agent " + filePath);
+            Executors.newSingleThreadScheduledExecutor(new ThreadFactory() {
+                @Override
+                public Thread newThread(Runnable runnable) {
+                    Thread th = new Thread(runnable);
+                    th.setName("jmx-report-" + prometheusReportedTo);
+                    return th;
+                }
+            }).scheduleAtFixedRate(() -> collect(registry), 10, 60, TimeUnit.SECONDS);
+            TraceLog.info("Loaded jmx agent " + filePath);
         }
-        catch (Exception e) {
+        catch (Throwable e) {
             TraceLog.warn("Fail to load " + ExceptionUtils.fullStack(e));
         }
     }
 
     private void collect(CollectorRegistry registry) {
         try {
+            //TraceLog.info("start collecting jmx data");
             StringWriter sw = new StringWriter(1024 * 4);
             TextFormat.write004(sw, registry.metricFamilySamples());
             HttpUtils.post(prometheusReportedTo, sw.toString(), reportingHeaders);
-            //TraceLog.info("Posting data " + StringUtils.abbr(sw.toString(), 100));
-        } catch (Exception e) {
+            //TraceLog.info("Posting data " + prometheusReportedTo + " data " + StringUtils.abbr(sw.toString(), 100));
+        } catch (Throwable e) {
             TraceLog.info("Fail to report " + ExceptionUtils.fullStack(e));
         }
     }
