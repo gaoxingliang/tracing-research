@@ -21,7 +21,7 @@ public class ProduceAdvice {
         // target remote url:
         try {
             List<String> target = producerConfig.getList("bootstrap.servers");
-            return MainHolders.get(NAME).getRecorder().recordStart("send", target.toString(), "kafka.topic", record.topic());
+            return MainHolders.get(NAME).getRecorder().recordStart("send", target.toString(), "__datatype", "kafka", "kafka.topic", record.topic());
         }
         catch (Throwable throwables) {
             return null;

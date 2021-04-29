@@ -21,7 +21,7 @@ public class ExecuteAdvice {
         // target remote url:
         try {
             String url = statement.getConnection().getMetaData().getURL();
-            return MainHolders.get(NAME).getRecorder().recordStart("execute", url, "sql.query",
+            return MainHolders.get(NAME).getRecorder().recordStart("execute", url, "__datatype", "jdbc", "sql.query",
                     args == null || args.length == 0 ? "" : String.valueOf(args[0]));
         }
         catch (Throwable throwables) {
