@@ -20,6 +20,12 @@ public class DiscoveredInfo {
         return discoveredInfo;
     }
 
+    public static DiscoveredInfo newZk() {
+        DiscoveredInfo discoveredInfo = new DiscoveredInfo();
+        discoveredInfo.type = "zookeeper";
+        return discoveredInfo;
+    }
+
     public String getType() {
         return type;
     }

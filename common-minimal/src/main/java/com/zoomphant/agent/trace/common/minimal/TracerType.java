@@ -12,6 +12,12 @@ public enum TracerType {
     KAFKA_TRACE("kafkajmx", "kafka-trace-0.0.1-all.jar", "com.zoomphant.agent.trace.kafka.KafkaMain"),
 
     /**
+     * ZK jvm
+     */
+    ZOOKEEPER_TRACE("zookeeperjmx", "zookeeper-trace-0.0.1-all.jar", "com.zoomphant.agent.trace.zookeeper.ZookeeperMain"),
+
+
+    /**
      * jvm which using kafka clients
      */
     KAFKA_JAVA("kafkajava", "kafka-java-0.0.1-all.jar", "com.zoomphant.agent.trace.kafkajava.KafkaJavaMain",

@@ -26,7 +26,9 @@ public class ContainerDiscovery implements Serializable {
         container_id,
         hostname,
         pid,
-        nodename
+        nodename,
+        zk_mode, // standalone or replica
+        zk_myid // id for zk replica mode
     }
 
     public String getSource() {
