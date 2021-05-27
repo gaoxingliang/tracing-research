@@ -42,9 +42,10 @@ public abstract class BasicMain {
             source = containerName;
         }
         TracerType tracerType = TracerType.valueOf(TraceOption.getOption(options, TraceOption.TRACER_TYPE));
+        install();
         _start(tracerType, agentArgs, inst);
         Executors.newSingleThreadScheduledExecutor().scheduleAtFixedRate(() -> reportingContainerDiscoveryInfo(), 10, 30, TimeUnit.SECONDS);
-        install();
+
     }
 
     public abstract void install();
@@ -54,20 +55,24 @@ public abstract class BasicMain {
     }
 
     private void reportingContainerDiscoveryInfo() {
-        ContainerDiscovery d = getContainerDiscovery();
-        if (d != null) {
-            try {
-                d.source = source;
-                d.getShareLabels().put(ContainerDiscovery.ProcessTypeLabel.pid, TraceOption.getOption(options, TraceOption.PID));
-                d.getShareLabels().put(ContainerDiscovery.ProcessTypeLabel.container_id, TraceOption.getOption(options, TraceOption.CONTAINER));
-                d.getShareLabels().put(ContainerDiscovery.ProcessTypeLabel.hostname, getHostName());
-                d.getShareLabels().put(ContainerDiscovery.ProcessTypeLabel.nodename, TraceOption.getOption(options, TraceOption.NODENAME));
+        try {
+            ContainerDiscovery d = getContainerDiscovery();
+            if (d != null) {
+                try {
+                    d.source = source;
+                    d.getShareLabels().put(ContainerDiscovery.ProcessTypeLabel.pid, TraceOption.getOption(options, TraceOption.PID));
+                    d.getShareLabels().put(ContainerDiscovery.ProcessTypeLabel.container_id, TraceOption.getOption(options, TraceOption.CONTAINER));
+                    d.getShareLabels().put(ContainerDiscovery.ProcessTypeLabel.hostname, getHostName());
+                    d.getShareLabels().put(ContainerDiscovery.ProcessTypeLabel.nodename, TraceOption.getOption(options, TraceOption.NODENAME));
 
-                HttpUtils.post(String.format("http://%s:%d/api/discover", chost, cport), OutputUtils.toBytes(d), null);
+                    HttpUtils.post(String.format("http://%s:%d/api/discover", chost, cport), OutputUtils.toBytes(d), null);
+                }
+                catch (IOException e) {
+                    TraceLog.warn("Fail to post remote " + e.getMessage());
+                }
             }
-            catch (IOException e) {
-                TraceLog.warn("Fail to post remote " + e.getMessage());
-            }
+        } catch (Exception e) {
+            TraceLog.warn("Fail to report discovery" + e);
         }
     }
 

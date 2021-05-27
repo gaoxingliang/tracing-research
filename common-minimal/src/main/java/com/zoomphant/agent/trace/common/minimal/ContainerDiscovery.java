@@ -16,7 +16,8 @@ public class ContainerDiscovery implements Serializable {
     Map<ProcessType, Map<ProcessTypeLabel, String>> processTypeMap = new HashMap<>(2);
 
     public enum ProcessType implements Serializable {
-        KAFKA
+        KAFKA,
+        ZOOKEEPER
     }
 
     public enum ProcessTypeLabel implements Serializable {
@@ -28,7 +29,10 @@ public class ContainerDiscovery implements Serializable {
         pid,
         nodename,
         zk_mode, // standalone or replica
-        zk_myid // id for zk replica mode
+        zk_replica, // id for zk replica mode
+        zk_clientAddr,
+        zk_elecAddr,
+        zk_quorumAddr
     }
 
     public String getSource() {
