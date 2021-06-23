@@ -20,7 +20,7 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.TimeUnit;
 
-public abstract class JMXBaseMain extends BasicMain {
+public class JMXBaseMain extends BasicMain {
     protected String prometheusReportedTo;
 
     /**
@@ -30,6 +30,11 @@ public abstract class JMXBaseMain extends BasicMain {
 
     public JMXBaseMain(String agentArgs, Instrumentation inst, ClassLoader cl) {
         super(agentArgs, inst, cl);
+    }
+
+    @Override
+    public void install() {
+
     }
 
     /**

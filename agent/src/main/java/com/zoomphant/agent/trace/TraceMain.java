@@ -40,17 +40,26 @@ public class TraceMain {
 
     public static Set<String> alreadyEnabledChecker = new ConcurrentSkipListSet<>();
     public static Map<Long /*pid*/, ConcurrentSkipListSet<String/*checker tracer  name*/>> alreadyAttachedProcces = new ConcurrentHashMap<>();
+
+    public static boolean start(final String libsFolder, Checker checker, final Map<String, String> reportingProps) {
+        return start(libsFolder, checker, reportingProps, new HashMap<>(0));
+    }
+
+
     /**
      * It will use below envs:
      * _ZP_ENV_NODE  : k8s108
      * CENTRAL_AGENT_SERVICE_SERVICE_HOST :  127.0.0.1
      *
-     * @param libsFolder
+     * @param libsFolder  where the folders of the libs.
      * @param checker which kind of tasks we want to detect
      * @param reportingProps this is used to generate the reporting props (eg mp id, mp product name... or others...)
+     * @param traceOptions additional Options (This has a higher priority than normal options) which will override the calculated options.
+     *                     eg: you can decide the reported to host by overrides the key: CENTRALHOST {@link TraceOption#CENTRALHOST}
+     *
      *
      */
-    public static boolean start(final String libsFolder, Checker checker, final Map<String, String> reportingProps) {
+    public static boolean start(final String libsFolder, Checker checker, final Map<String, String> reportingProps, final Map<String, String> traceOptions) {
         /**
          * To avoid problem:
          *  which may cause problem if we try to attach the zp agent (self attach self.)
@@ -77,17 +86,22 @@ public class TraceMain {
                         try {
                             TraceLog.info("Try checking for checker " + checker);
                             List<ProcInfo> procInfoList = ProcessUtils.allProcess2();
+                            int total = procInfoList.size();
+                            int skipped = 0, attached =0;
                             // for each process collect the informations...
                             for (ProcInfo p : procInfoList) {
                                 if (p.getId() == currentProcessId) {
+                                    skipped++;
                                     continue;
                                 }
 
                                 ConcurrentSkipListSet enabled = alreadyAttachedProcces.computeIfAbsent(p.getId(), k -> new ConcurrentSkipListSet<>());
                                 if (enabled.contains(tracerName)) {
+                                    skipped++;
                                     continue;
                                 }
                                 if (testCmd != null && !p.getCmd().contains(testCmd)) {
+                                    skipped++;
                                     continue;
                                 }
                                 List<DiscoveredInfo> discoveredInfos = new ArrayList<>();
@@ -141,12 +155,17 @@ public class TraceMain {
                                     options.put(TraceOption.SPY_JAR, spyFinalPath);
                                     options.put(TraceOption.BYTE_BUDDY_SHARE_JAR, bytebuddyJarFinalPath);
                                     options.put(TraceOption.TRACER_TYPE, checker.supportedTracers().name());
+                                    options.putAll(traceOptions);
                                     options.putAll(TraceOption.buildReportingHeaders(reportingProps));
                                     Thread th = new Thread(new AttachTask(p.getId(), bootstrapFinalPath, TraceOption.renderOptions(options)));
                                     th.start();
                                     enabled.add(tracerName);
+                                    attached++;
+                                } else {
+                                    skipped++;
                                 }
                             }
+                            TraceLog.info(String.format("Process checking stats - total=%d,skipped=%d,attached=%d", total, skipped, attached));
                         }
                         catch (Exception e) {
                             TraceLog.error("Fail to attach ", e);

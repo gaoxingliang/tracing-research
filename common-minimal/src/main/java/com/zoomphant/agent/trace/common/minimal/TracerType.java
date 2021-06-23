@@ -2,6 +2,11 @@ package com.zoomphant.agent.trace.common.minimal;
 
 public enum TracerType {
     /**
+     * Those cared normal jvm metrics attached and report by jmx
+     */
+    JMX_BASE("jmxbase", "jmx-base-0.0.1-all.jar", "com.zoomphant.agent.trace.jmx.JMXBaseMain"),
+
+    /**
      * jvm which using jdbc
      */
     SQL_JAVA("sql", "sql-java-0.0.1-all.jar", "com.zoomphant.agent.trace.sql.SqlMain", "java.sql.Statement"),

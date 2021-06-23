@@ -8,7 +8,7 @@ import java.util.Date;
 public class TraceLog {
 
     public static void debug(String msg) {
-        System.out.println(new Date() + Thread.currentThread().getName() + " TRACE :" + msg);
+        // System.out.println(new Date() + Thread.currentThread().getName() + " TRACE :" + msg);
     }
 
     public static void info(String msg) {

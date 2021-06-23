@@ -1,18 +1,61 @@
-plugins {
-    id 'java'
+
+buildscript {
+    repositories {
+        jcenter()
+    }
+    dependencies {
+        // classpath 'com.github.jengelman.gradle.plugins:shadow:2.0.1'
+    }
 }
 
-group 'com.zoomphant.agent.trace'
+plugins {
+    id 'java'
+    id "com.github.johnrengelman.shadow" version "5.0.0"
+}
 version '0.0.1'
 
 repositories {
     mavenCentral()
 }
 
+
+apply plugin: 'java'
+apply plugin: 'com.github.johnrengelman.shadow'
+
+
+
 dependencies {
     compile group: 'io.prometheus.jmx', name: 'jmx_prometheus_javaagent', version: '0.15.0'
     compile project(":common-minimal")
+    testCompile group: 'junit', name: 'junit', version: '4.12'
 }
 
-test {
+jar {
+    manifest {
+        attributes "Agent-Class": "com.zoomphant.agent.trace.jmx.JMXBaseMain"
+        attributes "Premain-Class": "com.zoomphant.agent.trace.jmx.JMXBaseMain"
+        attributes "Can-Redefine-Classes": "true"
+        attributes "Can-Retransform-Classes": "true"
+    }
+
+    from {
+        configurations.compile.collect { it.isDirectory() ? it : zipTree(it) }
+    }
+}
+
+shadowJar {
+    manifest {
+        inheritFrom project.tasks.jar.manifest
+    }
+}
+
+task copyToUpperLibs(type: Copy) {
+    from file("build/libs/")
+    into getRootProject().getProjectDir().getAbsolutePath() + "/releaselibs"
+}
+
+task build(overwrite: true) {
+    dependsOn = ['clean', 'shadowJar', 'copyToUpperLibs']
+    shadowJar.mustRunAfter clean
+    copyToUpperLibs.mustRunAfter shadowJar
 }
