@@ -1,7 +1,7 @@
 package com.zoomphant.agent.trace.spy;
 
-import java.util.HashSet;
-import java.util.Set;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * this classes is used to make sure only the agent class is loaded only once per agent class
@@ -10,15 +10,26 @@ import java.util.Set;
  */
 public class Spy {
 
-    private static final Set<String> inited = new HashSet<>();
+    private static final Map<String, String> inited = new HashMap<>();
 
-    public static boolean initIfNotExists(String agentClass) {
+    /**
+     *
+     * @param agentClass
+     * @param agentArgs
+     * @return  0: init success.  1: overwrite a existed agents.  2: the agent args is same and should ignore this time.
+     */
+    public static int initIfNotExists(String agentClass, String agentArgs) {
         synchronized (inited) {
-            if (inited.contains(agentClass)) {
-                return false;
+            String existedArgs = inited.get(agentClass);
+            if (existedArgs == null) {
+                inited.put(agentClass, agentArgs);
+                return 0;
+            } else if (!existedArgs.equals(agentArgs)) {
+                inited.put(agentClass, agentArgs);
+                return 1;
+            } else {
+                return 2;
             }
-            inited.add(agentClass);
-            return true;
         }
     }
 

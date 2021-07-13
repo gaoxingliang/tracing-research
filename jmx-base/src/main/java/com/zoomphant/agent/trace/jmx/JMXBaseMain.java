@@ -56,17 +56,11 @@ public class JMXBaseMain extends BasicMain {
 
     @Override
     protected void _start(TracerType tracer, String agentArgs, Instrumentation inst) {
-        // parse the options...
-        prometheusReportedTo = String.format("http://%s:%d/prometheus", chost, cport);
-        reportingHeaders = TraceOption.filterReportingHeaders(options);
-        // build the collector
-        String filePath = getConfigYaml();
-        Map<String, String> other = getOtherReportingHeaders();
-        if (!other.isEmpty()) {
-            reportingHeaders.putAll(TraceOption.buildReportingHeaders(other));
-        }
+        _flushInternalVariables();
         TraceLog.info("Reporting headers" + reportingHeaders);
 
+        // build the collector
+        String filePath = getConfigYaml();
         String fileContent = null;
         try {
             fileContent = FileUtils.getFile(JMXBaseMain.class.getClassLoader(), filePath);
@@ -86,6 +80,18 @@ public class JMXBaseMain extends BasicMain {
         }
         catch (Throwable e) {
             TraceLog.warn("Fail to load " + ExceptionUtils.fullStack(e));
+        }
+    }
+
+    @Override
+    protected void _flushInternalVariables() {
+        // parse the options...
+        prometheusReportedTo = String.format("http://%s:%d/prometheus", chost, cport);
+        reportingHeaders = TraceOption.filterReportingHeaders(options);
+
+        Map<String, String> other = getOtherReportingHeaders();
+        if (!other.isEmpty()) {
+            reportingHeaders.putAll(TraceOption.buildReportingHeaders(other));
         }
     }
 

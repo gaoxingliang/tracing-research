@@ -29,8 +29,24 @@ public abstract class BasicMain {
     public BasicMain(String agentArgs, Instrumentation inst, ClassLoader whoLoadMe) {
         this.inst = inst;
         this.whoLoadMe = whoLoadMe;
+        flushAgentArgs(agentArgs, true);
+        TracerType tracerType = TracerType.valueOf(TraceOption.getOption(options, TraceOption.TRACER_TYPE));
+        install();
+        _start(tracerType, agentArgs, inst);
+        Executors.newSingleThreadScheduledExecutor().scheduleAtFixedRate(() -> reportingContainerDiscoveryInfo(), 10, 30, TimeUnit.SECONDS);
+
+    }
+
+    /**
+     *
+     * Use this to flush latest variables and make it visible for existing task
+     * eg reporting Headers.
+     *
+     * @param agentArgs
+     * @param firstTime  is this the first time??
+     */
+    public final void flushAgentArgs(String agentArgs, boolean firstTime) {
         options = TraceOption.parseOptions(agentArgs);
-        this.jarFile = TraceOption.getOption(options, TraceOption.JARFILE);
         chost = TraceOption.getOption(options, TraceOption.CENTRALHOST);
         cport = TraceOption.getOptionInt(options, TraceOption.CENTRALPORT);
         String containerName = TraceOption.getOption(options, TraceOption.CONTAINER);
@@ -41,10 +57,20 @@ public abstract class BasicMain {
             // just a container name.
             source = containerName;
         }
-        TracerType tracerType = TracerType.valueOf(TraceOption.getOption(options, TraceOption.TRACER_TYPE));
-        install();
-        _start(tracerType, agentArgs, inst);
-        Executors.newSingleThreadScheduledExecutor().scheduleAtFixedRate(() -> reportingContainerDiscoveryInfo(), 10, 30, TimeUnit.SECONDS);
+        if (firstTime) {
+            this.jarFile = TraceOption.getOption(options, TraceOption.JARFILE);
+        } else {
+            // override
+            _flushInternalVariables();
+        }
+
+    }
+
+    /**
+     * Reserved for subclass to flush internal variables when the agent args are changed.
+     * Eg for jmx mains, it need to change the reporting headers too.
+     */
+    protected void _flushInternalVariables() {
 
     }
 

@@ -52,9 +52,15 @@ public class Bootstrap {
                 instrumentation.appendToBootstrapClassLoaderSearch(new JarFile(new File(TraceOption.getOption(options, TraceOption.BOOTSTRAP_JAR))));
                 spyClass = parent.loadClass(SPY_CLASS);
             }
-            boolean success = (boolean) spyClass.getMethod("initIfNotExists", String.class).invoke(null, agentClass);
-            if (!success) {
+            // 0: init success.  1: overwrite a existed agents.  2: the agent args is same and should ignore this time.
+            int initResult = (int) spyClass.getMethod("initIfNotExists", String.class, String.class).invoke(null, agentClass, agentArgs);
+            // TraceLog.info("The result for " + agentClass + " is" + initResult);
+            if (initResult == 2) {
                 TraceLog.info("The class already register " + agentClass);
+                return;
+            } else if (initResult == 1) {
+                MainHolders.flushAgentArgs(agentClass, agentArgs);
+                TraceLog.info("The class args are flushed " + agentClass);
                 return;
             }
 

@@ -41,4 +41,12 @@ public class DiscoveredInfo {
     public void setProps(Map<String, Object> props) {
         this.props = props;
     }
+
+    @Override
+    public String toString() {
+        return "DiscoveredInfo{" +
+                "type='" + type + '\'' +
+                ", props=" + props +
+                '}';
+    }
 }

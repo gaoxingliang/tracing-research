@@ -12,4 +12,11 @@ public class MainHolders {
     public static void register(String mainType, BasicMain main) {
         mains.put(mainType, main);
     }
+
+    public static void flushAgentArgs(String mainType, String args){
+        BasicMain main = get(mainType);
+        if (main != null) {
+            main.flushAgentArgs(args, false);
+        }
+    }
 }
