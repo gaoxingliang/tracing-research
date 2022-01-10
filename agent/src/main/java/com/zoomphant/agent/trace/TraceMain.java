@@ -28,6 +28,12 @@ import java.util.concurrent.ConcurrentSkipListSet;
 public class TraceMain {
 
     /**
+     * Let's control it whether this function is enable or not.
+     * if it's not enable, we will not start any trace functions.
+     */
+    public static boolean functionalityEnabled = true;
+
+    /**
      * this is used for test purpose.
      * When this is set. we only match process contains this command.
      */
@@ -60,6 +66,12 @@ public class TraceMain {
      *
      */
     public static boolean start(final String libsFolder, Checker checker, final Map<String, String> reportingProps, final Map<String, String> traceOptions) {
+
+        if (!functionalityEnabled) {
+            TraceLog.info("The Trace functionality is disabled on collector.");
+            return false;
+        }
+
         /**
          * To avoid problem:
          *  which may cause problem if we try to attach the zp agent (self attach self.)
