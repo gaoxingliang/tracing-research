@@ -31,7 +31,7 @@ public class TraceMain {
      * Let's control it whether this function is enable or not.
      * if it's not enable, we will not start any trace functions.
      */
-    public static boolean functionalityEnabled = true;
+    public static boolean functionalityEnabled = false; // default to false
 
     /**
      * this is used for test purpose.
