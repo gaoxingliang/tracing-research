@@ -17,4 +17,9 @@ public class ConsoleReporter implements SpanReporter {
     public void abandon(Span s) {
         TraceLog.info("Abandon " + s);
     }
+
+    @Override
+    public void stop() {
+        TraceLog.info("Stopped ConsoleReporter");
+    }
 }

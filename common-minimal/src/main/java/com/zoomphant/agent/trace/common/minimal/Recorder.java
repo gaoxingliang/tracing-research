@@ -6,13 +6,13 @@ public class Recorder {
     private String source;
     private final Tracer tracer;
     private final TracerType tracerType;
-
+    private final SpanReporter spanReporter;
     public Recorder(String source, TracerType tracerType, String reportedToUrl) {
         this.source = source;
         this.tracerType = tracerType;
         // Configure a reporter, which controls how often spans are sent
-        SpanReporter s = new MemoryBatchReporter(reportedToUrl);
-        this.tracer = new Tracer(source, s);
+        spanReporter = new MemoryBatchReporter(reportedToUrl);
+        this.tracer = new Tracer(source, spanReporter);
     }
 
     /**
@@ -62,5 +62,9 @@ public class Recorder {
 
     public TracerType getTracerType() {
         return tracerType;
+    }
+
+    public void stop() {
+        spanReporter.stop();
     }
 }

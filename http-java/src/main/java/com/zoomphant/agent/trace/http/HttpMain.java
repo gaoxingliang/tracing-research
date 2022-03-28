@@ -1,14 +1,22 @@
 package com.zoomphant.agent.trace.http;
 
-import com.zoomphant.agent.trace.common.minimal.BasicMain;
-import com.zoomphant.agent.trace.common.minimal.TraceLog;
-import net.bytebuddy.agent.builder.AgentBuilder;
-import net.bytebuddy.matcher.ElementMatchers;
+import com.zoomphant.agent.trace.common.minimal.*;
+import net.bytebuddy.agent.builder.*;
+import net.bytebuddy.matcher.*;
 
-import java.lang.instrument.Instrumentation;
-import java.sql.Statement;
+import java.lang.instrument.*;
+import java.sql.*;
 
 public class HttpMain extends BasicMain {
+    private ResettableClassFileTransformer resettableClassFileTransformer;
+
+    @Override
+    protected void _stop() {
+        if (resettableClassFileTransformer != null) {
+            resettableClassFileTransformer.reset(inst, AgentBuilder.RedefinitionStrategy.RETRANSFORMATION);
+        }
+    }
+
 
     public HttpMain(String agentArgs, Instrumentation inst, ClassLoader whoLoadMe) {
         super(agentArgs, inst, whoLoadMe);
@@ -16,7 +24,7 @@ public class HttpMain extends BasicMain {
 
     @Override
     public void install() {
-        new AgentBuilder.Default()
+        resettableClassFileTransformer = new AgentBuilder.Default()
                 .with(AgentBuilder.RedefinitionStrategy.RETRANSFORMATION)
                 .disableClassFormatChanges()
                 .with( //new AgentBuilder.Listener.WithErrorsOnly(

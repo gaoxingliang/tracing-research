@@ -1,24 +1,16 @@
 package com.zoomphant.agent.trace.jmx;
 
-import com.zoomphant.agent.trace.common.minimal.BasicMain;
-import com.zoomphant.agent.trace.common.minimal.TraceLog;
-import com.zoomphant.agent.trace.common.minimal.TraceOption;
-import com.zoomphant.agent.trace.common.minimal.TracerType;
-import com.zoomphant.agent.trace.common.minimal.utils.ExceptionUtils;
-import com.zoomphant.agent.trace.common.minimal.utils.FileUtils;
-import com.zoomphant.agent.trace.common.minimal.utils.HttpUtils;
-import io.prometheus.jmx.shaded.io.prometheus.client.CollectorRegistry;
-import io.prometheus.jmx.shaded.io.prometheus.client.exporter.common.TextFormat;
-import io.prometheus.jmx.shaded.io.prometheus.client.hotspot.DefaultExports;
-import io.prometheus.jmx.shaded.io.prometheus.jmx.JmxCollector;
+import com.zoomphant.agent.trace.common.minimal.*;
+import com.zoomphant.agent.trace.common.minimal.utils.*;
+import io.prometheus.jmx.shaded.io.prometheus.client.*;
+import io.prometheus.jmx.shaded.io.prometheus.client.exporter.common.*;
+import io.prometheus.jmx.shaded.io.prometheus.client.hotspot.*;
+import io.prometheus.jmx.shaded.io.prometheus.jmx.*;
 
-import java.io.StringWriter;
-import java.lang.instrument.Instrumentation;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ThreadFactory;
-import java.util.concurrent.TimeUnit;
+import java.io.*;
+import java.lang.instrument.*;
+import java.util.*;
+import java.util.concurrent.*;
 
 public class JMXBaseMain extends BasicMain {
     protected String prometheusReportedTo;
@@ -27,6 +19,10 @@ public class JMXBaseMain extends BasicMain {
      * the headers all starts with the prefix in {@link TraceOption#REPORTING_HEADER_PREFIX}
      **/
     protected Map<String, String> reportingHeaders;
+
+    @Override
+    protected void _stop() {
+    }
 
     public JMXBaseMain(String agentArgs, Instrumentation inst, ClassLoader cl) {
         super(agentArgs, inst, cl);
@@ -68,14 +64,7 @@ public class JMXBaseMain extends BasicMain {
             final JmxCollector jmxCollector = new JmxCollector(fileContent);
             jmxCollector.register(registry);
             DefaultExports.register(registry);
-            Executors.newSingleThreadScheduledExecutor(new ThreadFactory() {
-                @Override
-                public Thread newThread(Runnable runnable) {
-                    Thread th = new Thread(runnable);
-                    th.setName("jmx-report-" + prometheusReportedTo);
-                    return th;
-                }
-            }).scheduleAtFixedRate(() -> collect(registry), 10, 60, TimeUnit.SECONDS);
+            reporter.scheduleAtFixedRate(() -> collect(registry), 10, 60, TimeUnit.SECONDS);
             TraceLog.info("Loaded jmx agent " + filePath);
         }
         catch (Throwable e) {

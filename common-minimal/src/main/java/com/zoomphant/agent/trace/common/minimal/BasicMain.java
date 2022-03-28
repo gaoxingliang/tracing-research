@@ -1,14 +1,12 @@
 package com.zoomphant.agent.trace.common.minimal;
 
-import com.zoomphant.agent.trace.common.minimal.utils.HttpUtils;
-import com.zoomphant.agent.trace.common.minimal.utils.OutputUtils;
+import com.zoomphant.agent.trace.common.minimal.utils.*;
 
-import java.io.IOException;
-import java.lang.instrument.Instrumentation;
-import java.net.InetAddress;
-import java.util.Map;
-import java.util.concurrent.Executors;
-import java.util.concurrent.TimeUnit;
+import java.io.*;
+import java.lang.instrument.*;
+import java.net.*;
+import java.util.*;
+import java.util.concurrent.*;
 
 public abstract class BasicMain {
 
@@ -26,6 +24,8 @@ public abstract class BasicMain {
 
     protected final ClassLoader whoLoadMe;
 
+    protected final ScheduledExecutorService reporter;
+
     public BasicMain(String agentArgs, Instrumentation inst, ClassLoader whoLoadMe) {
         this.inst = inst;
         this.whoLoadMe = whoLoadMe;
@@ -33,9 +33,28 @@ public abstract class BasicMain {
         TracerType tracerType = TracerType.valueOf(TraceOption.getOption(options, TraceOption.TRACER_TYPE));
         install();
         _start(tracerType, agentArgs, inst);
-        Executors.newSingleThreadScheduledExecutor().scheduleAtFixedRate(() -> reportingContainerDiscoveryInfo(), 10, 30, TimeUnit.SECONDS);
-
+        reporter = Executors.newSingleThreadScheduledExecutor();
+        reporter.scheduleAtFixedRate(() -> reportingContainerDiscoveryInfo(), 10, 30, TimeUnit.SECONDS);
     }
+
+
+
+    public final void stop() {
+        reporter.shutdown();
+        if (recorder != null) {
+            recorder.stop();
+        }
+        try {
+            _stop();
+        } catch (Exception e) {
+            TraceLog.info("Fail to stop, " + e);
+        }
+    }
+
+    /**
+     * called when the instrumention is stopped. Do some cleanup stuff.
+     */
+    abstract protected void _stop();
 
     /**
      *

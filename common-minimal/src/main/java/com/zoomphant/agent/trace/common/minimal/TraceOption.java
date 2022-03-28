@@ -1,8 +1,6 @@
 package com.zoomphant.agent.trace.common.minimal;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 
 public class TraceOption {
     // central agent address
@@ -16,6 +14,10 @@ public class TraceOption {
     public static final String BOOTSTRAP_JAR = "_bootstrap_jar";
     public static final String BYTE_BUDDY_SHARE_JAR = "_bytebuddy_jar";
     public static final String SPY_JAR = "_spy_jar";
+
+    public static final String COMMAND = "_cmd";  //  check whether it's a command.  eg: _cmd = stop
+    public static final String COMMAND_STOP = "STOP"; // stop and remove instrumention of the agent.
+    public static final String COMMAND_START = "START"; // start instrumention of the agent.
 
     public static final String REPORTING_HEADER_PREFIX = "__r_";
 
@@ -41,7 +43,12 @@ public class TraceOption {
         String [] args = agentArgs.split("##");
         for (int i = 0; i < args.length; i++) {
             String [] kv = args[i].split("=", 2);
-            argMap.put(kv[0], kv[1]);
+            if (kv.length == 1) {
+                argMap.put(kv[0], "");
+            }
+            else {
+                argMap.put(kv[0], kv[1]);
+            }
         }
         return argMap;
     }

@@ -1,16 +1,23 @@
 package com.zoomphant.agent.trace.kafkajava;
 
-import com.zoomphant.agent.trace.common.minimal.BasicMain;
-import com.zoomphant.agent.trace.common.minimal.Custom;
-import com.zoomphant.agent.trace.common.minimal.TraceLog;
-import net.bytebuddy.agent.builder.AgentBuilder;
-import net.bytebuddy.asm.Advice;
-import net.bytebuddy.matcher.ElementMatchers;
-import org.apache.kafka.clients.producer.KafkaProducer;
+import com.zoomphant.agent.trace.common.minimal.*;
+import net.bytebuddy.agent.builder.*;
+import net.bytebuddy.asm.*;
+import net.bytebuddy.matcher.*;
+import org.apache.kafka.clients.producer.*;
 
-import java.lang.instrument.Instrumentation;
+import java.lang.instrument.*;
 
 public class KafkaJavaMain extends BasicMain {
+
+    private ResettableClassFileTransformer resettableClassFileTransformer;
+
+    @Override
+    protected void _stop() {
+        if (resettableClassFileTransformer != null) {
+            resettableClassFileTransformer.reset(inst, AgentBuilder.RedefinitionStrategy.RETRANSFORMATION);
+        }
+    }
 
     public KafkaJavaMain(String agentArgs, Instrumentation inst, ClassLoader whoLoadMe) {
         super(agentArgs, inst, whoLoadMe);
@@ -19,7 +26,7 @@ public class KafkaJavaMain extends BasicMain {
     @Override
     public void install() {
         try {
-            new AgentBuilder.Default()
+            resettableClassFileTransformer = new AgentBuilder.Default()
                     .with(AgentBuilder.RedefinitionStrategy.RETRANSFORMATION)
                     .disableClassFormatChanges()
                     .with( //new AgentBuilder.Listener.WithErrorsOnly(

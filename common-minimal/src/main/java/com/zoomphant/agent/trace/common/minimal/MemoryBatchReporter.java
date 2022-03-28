@@ -1,27 +1,24 @@
 package com.zoomphant.agent.trace.common.minimal;
 
 
+import com.zoomphant.agent.trace.common.minimal.utils.*;
 
-import com.zoomphant.agent.trace.common.minimal.utils.HttpUtils;
-import com.zoomphant.agent.trace.common.minimal.utils.OutputUtils;
-
-import java.util.ArrayList;
-import java.util.List;
-import java.util.concurrent.ArrayBlockingQueue;
-import java.util.concurrent.BlockingQueue;
-import java.util.concurrent.Executors;
-import java.util.concurrent.TimeUnit;
+import java.util.*;
+import java.util.concurrent.*;
 
 public class MemoryBatchReporter implements SpanReporter {
 
     private final String reportedTo;
     private WeakConcurrentMap<String, Span> spans;
     private BlockingQueue<Span> finished = new ArrayBlockingQueue<>(10240);
+    private final ExecutorService reporter;
+    private volatile boolean stopped = false;
 
     public MemoryBatchReporter(String reportedTo) {
         this.reportedTo = reportedTo;
         this.spans = new WeakConcurrentMap<>();
-        Executors.newSingleThreadExecutor().submit(() -> _report());
+        reporter = Executors.newSingleThreadExecutor();
+        reporter.submit(() -> _report());
     }
 
     private void _report() {
@@ -31,7 +28,7 @@ public class MemoryBatchReporter implements SpanReporter {
             long lastReported = 0;
             long reportInterval = TimeUnit.SECONDS.toMillis(5);
             Span span = null;
-            while (true) {
+            while (!stopped) {
                 try {
                      span = finished.poll(1, TimeUnit.SECONDS);
                 } catch (InterruptedException e) {
@@ -73,7 +70,9 @@ public class MemoryBatchReporter implements SpanReporter {
 
     @Override
     public boolean finish(Span s) {
-        finished.add(s);
+        if (!stopped) {
+            finished.add(s);
+        }
         spans.remove(s.getId());
         return true;
     }
@@ -81,5 +80,12 @@ public class MemoryBatchReporter implements SpanReporter {
     @Override
     public void abandon(Span s) {
         spans.remove(s.getId());
+    }
+
+    @Override
+    public void stop() {
+        stopped = true;
+        reporter.shutdownNow();
+        finished.clear();
     }
 }

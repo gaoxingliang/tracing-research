@@ -4,4 +4,5 @@ public interface SpanReporter {
     boolean start(Span s);
     boolean finish(Span s);
     void abandon(Span s);
+    void stop();
 }

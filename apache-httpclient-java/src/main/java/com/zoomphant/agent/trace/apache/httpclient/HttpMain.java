@@ -2,7 +2,7 @@ package com.zoomphant.agent.trace.apache.httpclient;
 
 import com.zoomphant.agent.trace.common.minimal.BasicMain;
 import com.zoomphant.agent.trace.common.minimal.TraceLog;
-import net.bytebuddy.agent.builder.AgentBuilder;
+import net.bytebuddy.agent.builder.*;
 import net.bytebuddy.matcher.ElementMatchers;
 import org.apache.http.HttpHost;
 import org.apache.http.HttpRequest;
@@ -14,9 +14,20 @@ import java.lang.instrument.Instrumentation;
 
 public class HttpMain extends BasicMain {
 
+    private ResettableClassFileTransformer resettableClassFileTransformer;
+
+    @Override
+    protected void _stop() {
+        if (resettableClassFileTransformer != null) {
+            resettableClassFileTransformer.reset(inst, AgentBuilder.RedefinitionStrategy.RETRANSFORMATION);
+        }
+    }
+
     public HttpMain(String agentArgs, Instrumentation inst, ClassLoader whoLoadMe) {
         super(agentArgs, inst, whoLoadMe);
     }
+
+
 
     @Override
     public void install() {
@@ -24,7 +35,7 @@ public class HttpMain extends BasicMain {
          *     HttpResponse execute(HttpHost target, HttpRequest request,
          *                          HttpContext context)
          */
-        new AgentBuilder.Default()
+        resettableClassFileTransformer = new AgentBuilder.Default()
                 .with(AgentBuilder.RedefinitionStrategy.RETRANSFORMATION)
                 .disableClassFormatChanges()
                 .with( //new AgentBuilder.Listener.WithErrorsOnly(

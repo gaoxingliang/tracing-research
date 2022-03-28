@@ -32,5 +32,11 @@ public class Spy {
             }
         }
     }
+    public static boolean exists(String agentClass) {
+        return inited.containsKey(agentClass);
+    }
+    public static void remove(String agentClass) {
+        inited.remove(agentClass);
+    }
 
 }

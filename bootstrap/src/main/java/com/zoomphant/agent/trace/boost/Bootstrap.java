@@ -9,7 +9,7 @@ import com.zoomphant.agent.trace.common.minimal.utils.StringUtils;
 
 import java.io.File;
 import java.lang.instrument.Instrumentation;
-import java.lang.reflect.Constructor;
+import java.lang.reflect.*;
 import java.net.URL;
 import java.util.Map;
 import java.util.jar.JarFile;
@@ -31,7 +31,6 @@ public class Bootstrap {
         // parse the dest fill
         Map<String, String> options = TraceOption.parseOptions(agentArgs);
         TracerType r = TracerType.valueOf(TraceOption.getOption(options, TraceOption.TRACER_TYPE));
-        String agentFile = TraceOption.getOption(options, TraceOption.JARFILE);
         String agentClass = r.getMainClass();
         try {
             // here we use a global system loader to
@@ -52,40 +51,17 @@ public class Bootstrap {
                 instrumentation.appendToBootstrapClassLoaderSearch(new JarFile(new File(TraceOption.getOption(options, TraceOption.BOOTSTRAP_JAR))));
                 spyClass = parent.loadClass(SPY_CLASS);
             }
-            // 0: init success.  1: overwrite a existed agents.  2: the agent args is same and should ignore this time.
-            int initResult = (int) spyClass.getMethod("initIfNotExists", String.class, String.class).invoke(null, agentClass, agentArgs);
-            // TraceLog.info("The result for " + agentClass + " is" + initResult);
-            if (initResult == 2) {
-                TraceLog.info("The class already register " + agentClass);
-                return;
-            } else if (initResult == 1) {
-                MainHolders.flushAgentArgs(agentClass, agentArgs);
-                TraceLog.info("The class args are flushed " + agentClass);
-                return;
+
+            String command = TraceOption.getOption(options, TraceOption.COMMAND);
+            if (TraceOption.COMMAND_START.equalsIgnoreCase(command)) {
+                processCommandStart(instrumentation, spyClass, agentArgs);
+            } else if (TraceOption.COMMAND_STOP.equalsIgnoreCase(command)) {
+                processCommandStop(instrumentation, spyClass, agentClass);
+            }
+            else {
+                TraceLog.info("Unknown command in bootstrap " + command);
             }
 
-            String requiredClass = r.getRequiredClass();
-            ClassLoader requiredClassLoader = null;
-            if (!StringUtils.isEmpty(requiredClass)) {
-                // try to check whether Filethe classloader is already loaded this class
-                requiredClassLoader = getClassloaderOfClass(instrumentation, requiredClass);
-                if (requiredClassLoader == null) {
-                    TraceLog.info("Not install " + agentClass + " because of require class not loaded" + requiredClass);
-                    return;
-                }
-            }
-
-            // apply the bootstrap jar
-            StandaloneAgentClassloader arthasClassLoader = new StandaloneAgentClassloader(new URL[] {
-                    new File(TraceOption.getOption(options, TraceOption.BYTE_BUDDY_SHARE_JAR)).toURL(),
-                    new File(agentFile).toURL()}, requiredClassLoader);
-            arthasClassLoader.loadClass(agentClass);
-            Class c = arthasClassLoader.loadClass(agentClass);
-            Constructor con = c.getConstructor(String.class, Instrumentation.class, ClassLoader.class);
-
-            Object basicMain = con.newInstance(agentArgs, instrumentation, arthasClassLoader);
-            MainHolders.register(agentClass, (BasicMain) basicMain);
-            TraceLog.info("Success install " + agentClass);
         }
         catch (Exception e) {
             TraceLog.error("Error when loading " + agentClass, e);
@@ -93,6 +69,65 @@ public class Bootstrap {
 
     }
 
+    private static void processCommandStop(Instrumentation instrumentation, Class<?> spyClass, String agentClass) throws Exception {
+        boolean exists = (boolean) spyClass.getMethod("exists", String.class).invoke(null, agentClass);
+        // TraceLog.info("The result for " + agentClass + " is" + initResult);
+        if (exists) {
+            BasicMain basicMain = MainHolders.get(agentClass);
+            if (basicMain == null) {
+                TraceLog.info("Not found the instance of class " + agentClass + " when stopping.");
+                return;
+            }
+            basicMain.stop();
+            MainHolders.mains.remove(agentClass);
+            spyClass.getMethod("remove", String.class).invoke(null, agentClass);
+            TraceLog.info("Class "+ agentClass + " is stopped");
+            return;
+        }
+    }
+
+    static void processCommandStart(Instrumentation instrumentation, Class spyClass,String agentArgs) throws Exception {
+        TraceLog.info("Agent args are:" + agentArgs);
+        Map<String, String> options = TraceOption.parseOptions(agentArgs);
+        TracerType r = TracerType.valueOf(TraceOption.getOption(options, TraceOption.TRACER_TYPE));
+        String agentFile = TraceOption.getOption(options, TraceOption.JARFILE);
+        String agentClass = r.getMainClass();
+
+        // 0: init success.  1: overwrite a existed agents.  2: the agent args is same and should ignore this time.
+        int initResult = (int) spyClass.getMethod("initIfNotExists", String.class, String.class).invoke(null, agentClass, agentArgs);
+        // TraceLog.info("The result for " + agentClass + " is" + initResult);
+        if (initResult == 2) {
+            TraceLog.info("The class already register " + agentClass);
+            return;
+        } else if (initResult == 1) {
+            MainHolders.flushAgentArgs(agentClass, agentArgs);
+            TraceLog.info("The class args are flushed " + agentClass);
+            return;
+        }
+
+        String requiredClass = r.getRequiredClass();
+        ClassLoader requiredClassLoader = null;
+        if (!StringUtils.isEmpty(requiredClass)) {
+            // try to check whether Filethe classloader is already loaded this class
+            requiredClassLoader = getClassloaderOfClass(instrumentation, requiredClass);
+            if (requiredClassLoader == null) {
+                TraceLog.info("Not install " + agentClass + " because of require class not loaded" + requiredClass);
+                return;
+            }
+        }
+
+        // apply the bootstrap jar
+        StandaloneAgentClassloader arthasClassLoader = new StandaloneAgentClassloader(new URL[] {
+                new File(TraceOption.getOption(options, TraceOption.BYTE_BUDDY_SHARE_JAR)).toURL(),
+                new File(agentFile).toURL()}, requiredClassLoader);
+        arthasClassLoader.loadClass(agentClass);
+        Class c = arthasClassLoader.loadClass(agentClass);
+        Constructor con = c.getConstructor(String.class, Instrumentation.class, ClassLoader.class);
+
+        Object basicMain = con.newInstance(agentArgs, instrumentation, arthasClassLoader);
+        MainHolders.register(agentClass, (BasicMain) basicMain);
+        TraceLog.info("Success install " + agentClass);
+    }
 
     private static ClassLoader getClassloaderOfClass(Instrumentation instrumentation, String className) {
         try {
@@ -102,7 +137,7 @@ public class Bootstrap {
                     // starts is okay for some internal classes like org.apache.kafka.Kafka.$Abc
                     if (c.getCanonicalName().startsWith(className)) {
                         ClassLoader cl =  c.getClassLoader();
-                        TraceLog.info(String.format("Found the require class %s is loaded by %s", className, cl));
+                        TraceLog.info(String.format("Found the class %s is loaded by %s", className, cl));
                         return cl;
                     }
                 } catch (Throwable e) {

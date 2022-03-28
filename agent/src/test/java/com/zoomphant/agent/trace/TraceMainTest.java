@@ -10,9 +10,14 @@ public class TraceMainTest {
         Map<String, String> ids = new HashMap<>();
         ids.put("_resourceName", "hello");
         TraceMain.testCmd = "demo-0.0.1-SNAPSHOT.jar";
+        TraceMain.functionalityEnabled = true;
         TraceMain.start("./releaselibs", new SQLChecker(), ids);
 
-        Thread.sleep(1000000);
+        Thread.sleep(10000);
+
+        TraceMain.stop(new SQLChecker());
+        Thread.sleep(10000);
+        System.out.println(".....done");
     }
 
 
