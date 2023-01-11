@@ -18,6 +18,13 @@ and different kinds of agents:
 - http-java (scrape when a jvm using http)
 - apache-httpclient-java (when a jvm using apache httpclient 4.x)
 
+# Main difficulties & structure
+1. use a spy & bootstrap class to maintain the different tracers. --> this is added to the bootstrap classloader. 
+2. support loading modules using required class.
+3. a standalone class loader to load our stuffs. (which may be the parent class loader is the class loader of required class).
+
+
+
 # build
 `./gradlew build` and check the folder `agentlibs` and `releaselibs`
 
